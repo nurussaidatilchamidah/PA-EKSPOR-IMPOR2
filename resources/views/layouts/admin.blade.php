@@ -51,9 +51,9 @@
     </a>
 
     <!-- Prediksi -->
-    <a href="#"
+    <a href="{{ route('prediksi.arima') }}"
        class="flex items-center gap-2 px-4 py-2 rounded 
-       {{ request()->routeIs('prediksi.*') ? 'bg-white text-blue-700 font-semibold' : 'text-white hover:bg-blue-700' }}">
+       {{ request()->routeIs('prediksi.arima') ? 'bg-white text-blue-700 font-semibold' : 'text-white hover:bg-blue-700' }}">
         📈 Prediksi ARIMA
     </a>
 

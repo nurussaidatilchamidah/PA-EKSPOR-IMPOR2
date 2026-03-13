@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\PrediksiController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -48,5 +49,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 });
 
 });
+
+
+// Prediksi Routes
+Route::get('/admin/prediksi-arima',[PrediksiController::class,'arima'])->name('prediksi.arima');
 
 require __DIR__.'/auth.php';
