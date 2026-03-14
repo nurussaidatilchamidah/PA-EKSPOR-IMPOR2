@@ -9,24 +9,45 @@ import json
 
 data = json.loads(sys.argv[1])
 
-# ubah semua data menjadi float
 series = pd.Series(data).astype(float)
 
-train = series[:-1]
-test = series[-1:]
+# split data
+train = series[:-3]
+test = series[-3:]
 
-model = ARIMA(train, order=(1,1,1))
-model_fit = model.fit()
+best_aic = float("inf")
+best_order = None
+best_model = None
 
-forecast = model_fit.forecast(steps=1)
+# cari model ARIMA terbaik
+for p in range(0,3):
+    for d in range(0,2):
+        for q in range(0,3):
+            try:
+                model = ARIMA(train, order=(p,d,q))
+                model_fit = model.fit()
 
-mae = np.mean(np.abs(test.values - forecast.values))
-rmse = np.sqrt(np.mean((test.values - forecast.values) ** 2))
+                if model_fit.aic < best_aic:
+                    best_aic = model_fit.aic
+                    best_order = (p,d,q)
+                    best_model = model_fit
+            except:
+                continue
+
+# prediksi 1 periode untuk evaluasi
+forecast_test = best_model.forecast(steps=3)
+
+actual = test.values
+
+mae = np.mean(np.abs(test - forecast_test))
+rmse = np.sqrt(np.mean((test - forecast_test) ** 2))
+
 
 result = {
-    "prediksi": float(forecast.iloc[0]),
+    "prediksi": float(forecast_test.iloc[0]),
     "mae": float(mae),
-    "rmse": float(rmse)
+    "rmse": float(rmse),
+    "model": str(best_order)
 }
 
 print(json.dumps(result))
