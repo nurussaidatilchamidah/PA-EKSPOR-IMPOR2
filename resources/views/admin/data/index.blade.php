@@ -27,6 +27,8 @@
     <!-- CARD IMPORT DATA -->
     <div class="bg-white rounded-xl shadow p-6">
         <h3 class="text-lg font-semibold mb-2">Import Data Bulanan</h3>
+        <div class="mb-3">
+</div>
         <p class="text-gray-500 text-sm mb-4">
             Upload file Excel (.xlsx / .xls / .csv)
         </p>
@@ -37,6 +39,14 @@
               class="flex flex-col gap-3">
 
             @csrf
+
+            <select name="tahun" required class="border p-2 rounded text-sm">
+    <option value="">Pilih Tahun</option>
+    <option value="2024">2024</option>
+    <option value="2025">2025</option>
+    <option value="2026">2026</option>
+</select>
+
 
             <input type="file" 
                    name="file" 
@@ -113,9 +123,8 @@
         </thead>
         <tbody>
         @foreach($data as $item)
-<tr class="border-b hover:bg-gray-100 {{ session('highlight_id') == $item->id ? 'bg-green-200' : '' }}">
-                <td class="p-3">{{ $item->tahun }}</td>
-                <td class="p-3">{{ $item->bulan }}</td>
+<td class="p-3">{{ \Carbon\Carbon::parse($item->tanggal)->format('Y') }}</td>
+<td class="p-3">{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('F') }}</td>
                 <td class="p-3">{{ number_format($item->nilai_ekspor,3,',','.') }}</td>
                 <td class="p-3">{{ number_format($item->berat_ekspor,3,',','.') }}</td>
                 <td class="p-3">{{ number_format($item->nilai_impor,3,',','.') }}</td>

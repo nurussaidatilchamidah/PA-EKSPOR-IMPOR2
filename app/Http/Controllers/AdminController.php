@@ -9,7 +9,6 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\DB;
 use App\Models\MasterHs;
 
-
 class AdminController extends Controller
 {
 
@@ -34,19 +33,37 @@ private function convertNumber($value)
     return $value;
 }
 
+private function convertBulan($bulan)
+{
+    $bulan = strtolower(trim($bulan));
+
+    $bulanList = [
+        'januari' => '01',
+        'februari' => '02',
+        'maret' => '03',
+        'april' => '04',
+        'mei' => '05',
+        'juni' => '06',
+        'juli' => '07',
+        'agustus' => '08',
+        'september' => '09',
+        'oktober' => '10',
+        'november' => '11',
+        'desember' => '12'
+    ];
+
+    return $bulanList[$bulan] ?? null;
+}
+
        // DASHBOARD
 public function dashboard()
 {
-    $tahun = 2025;
-
+    $tahun = DataEksporImpor::max(DB::raw('YEAR(tanggal)'));
     // =============================
     // CARD SUMMARY
     // =============================
-    $totalEkspor = DataEksporImpor::where('tahun', $tahun)
-                    ->sum('nilai_ekspor');
-
-    $totalImpor = DataEksporImpor::where('tahun', $tahun)
-                    ->sum('nilai_impor');
+$totalEkspor = DataEksporImpor::whereYear('tanggal', $tahun)->sum('nilai_ekspor');
+$totalImpor = DataEksporImpor::whereYear('tanggal', $tahun)->sum('nilai_impor');
 
     $selisih = $totalEkspor - $totalImpor;
 
@@ -57,15 +74,13 @@ public function dashboard()
     // =============================
     // DATA LINE CHART BULANAN
     // =============================
-    $dataBulanan = DataEksporImpor::where('tahun', $tahun)
-        ->orderByRaw("
-            FIELD(bulan,
-            'Januari','Februari','Maret','April','Mei','Juni',
-            'Juli','Agustus','September','Oktober','November','Desember')
-        ")
-        ->get();
+$dataBulanan = DataEksporImpor::whereYear('tanggal', $tahun)
+    ->orderBy('tanggal')
+    ->get();
 
-    $labels = $dataBulanan->pluck('bulan');
+$labels = $dataBulanan->pluck('tanggal')->map(function($tgl){
+    return date('F', strtotime($tgl));
+});
     $ekspor = $dataBulanan->pluck('nilai_ekspor');
     $impor  = $dataBulanan->pluck('nilai_impor');
 
@@ -95,14 +110,7 @@ $dataHs = DB::table('data_hs')
     // INDEX BULANAN
     public function index()
 {
-    $data = DataEksporImpor::orderBy('tahun','asc')
-    ->orderByRaw("
-        FIELD(bulan,
-        'Januari','Februari','Maret','April','Mei','Juni',
-        'Juli','Agustus','September','Oktober','November','Desember')
-    ")
-    ->get();
-
+$data = DataEksporImpor::orderBy('tanggal','asc')->get();
 
     return view('admin.data.index', compact('data'));
 }
@@ -125,9 +133,14 @@ public function store(Request $request)
         'berat_impor' => 'required',
     ]);
 
+    // ubah bulan -> angka
+    $bulan = $this->convertBulan($request->bulan);
+
+    // buat tanggal
+    $tanggal = $request->tahun . '-' . $bulan . '-01';
+
     $data = DataEksporImpor::create([
-        'tahun' => $request->tahun,
-        'bulan' => $request->bulan,
+        'tanggal' => $tanggal,
         'nilai_ekspor' => $this->convertNumber($request->nilai_ekspor),
         'berat_ekspor' => $this->convertNumber($request->berat_ekspor),
         'nilai_impor' => $this->convertNumber($request->nilai_impor),
@@ -189,7 +202,10 @@ public function importBulanan(Request $request)
 {
     $request->validate([
         'file' => 'required|mimes:xlsx,xls,csv',
+        'tahun' => 'required'
     ]);
+
+    $tahun = $request->tahun;
 
     $spreadsheet = IOFactory::load($request->file('file')->getPathname());
     $rows = $spreadsheet->getActiveSheet()->toArray();
@@ -202,20 +218,25 @@ public function importBulanan(Request $request)
 
     if (!isset($row[0])) continue;
 
-    $bulan = trim($row[0]);
+    $bulanText = trim($row[0]);
 
     if (
-        empty($bulan) ||
-        strtolower($bulan) == 'bulan' ||
-        strtolower($bulan) == 'jumlah'
+        empty($bulanText) ||
+        strtolower($bulanText) == 'bulan' ||
+        strtolower($bulanText) == 'jumlah'
     ) {
         continue;
     }
 
+    $bulan = $this->convertBulan($bulanText);
+
+    if (!$bulan) continue;
+
+    $tanggal = $tahun . '-' . $bulan . '-01';
+
     DataEksporImpor::updateOrCreate(
         [
-            'tahun' => 2025,
-            'bulan' => $bulan
+            'tanggal' => $tanggal
         ],
         [
             'nilai_ekspor' => $this->convertNumber($row[1] ?? 0),
@@ -228,7 +249,7 @@ public function importBulanan(Request $request)
         DB::commit();
 
         return redirect()->route('admin.data')
-            ->with('success', 'Import data bulanan berhasil!');
+            ->with('success', 'Import data berhasil!');
 
     } catch (\Exception $e) {
 

@@ -62,18 +62,28 @@ class PrediksiController extends Controller
 
         $resultImpor = json_decode($outputImpor, true);
 
-        // ================= DATA GRAFIK =================
+       // ================= DATA GRAFIK =================
 
         $labels = $bulan;
-
-        // Tambah label prediksi
         $labels[] = "Prediksi";
 
+        // historis
         $dataEksporChart = $data_ekspor;
-        $dataEksporChart[] = $resultEkspor['prediksi'];
+        $dataEksporChart[] = null;
 
         $dataImporChart = $data_impor;
-        $dataImporChart[] = $resultImpor['prediksi'];
+        $dataImporChart[] = null;
+
+        // prediksi ekspor
+        $dataPrediksiEkspor = array_fill(0, count($labels), null);
+        $dataPrediksiEkspor[count($labels)-2] = end($data_ekspor);
+        $dataPrediksiEkspor[count($labels)-1] = $resultEkspor['prediksi'];
+
+        // prediksi impor
+        $dataPrediksiImpor = array_fill(0, count($labels), null);
+        $dataPrediksiImpor[count($labels)-2] = end($data_impor);
+        $dataPrediksiImpor[count($labels)-1] = $resultImpor['prediksi'];
+
 
         // ================= VIEW =================
         return view('admin.prediksi.arima', [
@@ -88,7 +98,9 @@ class PrediksiController extends Controller
 
             'labels' => $labels,
             'dataEkspor' => $dataEksporChart,
-            'dataImpor' => $dataImporChart
+            'dataImpor' => $dataImporChart,
+            'dataPrediksiEkspor' => $dataPrediksiEkspor,
+            'dataPrediksiImpor' => $dataPrediksiImpor,
         ]);
     }
 }
