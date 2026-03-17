@@ -8,6 +8,7 @@ use App\Models\DataHS;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\DB;
 use App\Models\MasterHs;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -58,8 +59,9 @@ private function convertBulan($bulan)
        // DASHBOARD
 public function dashboard()
 {
-    $tahun = DataEksporImpor::max(DB::raw('YEAR(tanggal)'));
-    // =============================
+$tahun = request('tahun') ?? 2025;
+
+// =============================
     // CARD SUMMARY
     // =============================
 $totalEkspor = DataEksporImpor::whereYear('tanggal', $tahun)->sum('nilai_ekspor');
@@ -74,12 +76,11 @@ $totalImpor = DataEksporImpor::whereYear('tanggal', $tahun)->sum('nilai_impor');
     // =============================
     // DATA LINE CHART BULANAN
     // =============================
-$dataBulanan = DataEksporImpor::whereYear('tanggal', $tahun)
-    ->orderBy('tanggal')
-    ->get();
+$dataBulanan = DataEksporImpor::orderBy('tanggal')->get();
+
 
 $labels = $dataBulanan->pluck('tanggal')->map(function($tgl){
-    return date('F', strtotime($tgl));
+    return Carbon::parse($tgl)->translatedFormat('F');
 });
     $ekspor = $dataBulanan->pluck('nilai_ekspor');
     $impor  = $dataBulanan->pluck('nilai_impor');
@@ -110,7 +111,7 @@ $dataHs = DB::table('data_hs')
     // INDEX BULANAN
     public function index()
 {
-$data = DataEksporImpor::orderBy('tanggal','asc')->get();
+$data = DataEksporImpor::orderBy('tanggal','desc')->get();
 
     return view('admin.data.index', compact('data'));
 }
