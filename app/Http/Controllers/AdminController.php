@@ -270,57 +270,53 @@ public function importHS(Request $request)
     $spreadsheet = IOFactory::load($request->file('file')->getPathname());
     $rows = $spreadsheet->getActiveSheet()->toArray();
 
-    DB::beginTransaction();
+DB::beginTransaction();
 
-    try {
+try {
 
-        foreach ($rows as $index => $row) {
-
-            // Skip header (baris pertama)
-            if ($index == 0) continue;
-
-            // Kalau kolom pertama kosong, skip
-            if (empty($row[0])) continue;
-
-            // Pisahkan kode dan deskripsi
-            $kodeDanNama = explode(' ', trim($row[0]), 2);
-            $kode = $kodeDanNama[0];
-            $nama = $kodeDanNama[1] ?? '';
-
-            // Bersihkan tanda kurung jika ada
-            $kode = str_replace(['[', ']'], '', $kode);
-
-            DataHS::create([
-                'kode_hs'      => $kode,
-                'nama_barang'  => $nama,
-                'nilai_ekspor' => $this->convertNumber($row[1] ?? 0),
-                'berat_ekspor' => $this->convertNumber($row[2] ?? 0),
-                'nilai_impor'  => $this->convertNumber($row[3] ?? 0),
-                'berat_impor'  => $this->convertNumber($row[4] ?? 0),
-            ]);
-        }
-
-        DB::commit();
-
-        return back()->with('success', 'Data HS berhasil diimport!');
-
-    } catch (\Exception $e) {
-
-        DB::rollBack();
-        return back()->with('error', 'Gagal import HS: ' . $e->getMessage());
-    }
+if (count($rows) > 1) {
+    DataHS::query()->delete();
 }
+    foreach ($rows as $index => $row) {
 
+        if ($index == 0) continue;
+        if (empty($row[0])) continue;
+
+        $kodeDanNama = explode(' ', trim($row[0]), 2);
+        $kode = str_replace(['[', ']'], '', $kodeDanNama[0]);
+        $nama = $kodeDanNama[1] ?? '';
+
+        DataHS::create([
+            'kode_hs'      => $kode,
+            'nama_barang'  => $nama,
+            'nilai_ekspor' => $this->convertNumber($row[1] ?? 0),
+            'berat_ekspor' => $this->convertNumber($row[2] ?? 0),
+            'nilai_impor'  => $this->convertNumber($row[3] ?? 0),
+            'berat_impor'  => $this->convertNumber($row[4] ?? 0),
+        ]);
+    }
+
+    DB::commit();
+
+    return back()->with('success', 'Data HS terbaru berhasil diimport!');
+
+} catch (\Exception $e) {
+
+    DB::rollBack();
+
+    return back()->with('error', 'Gagal import HS: ' . $e->getMessage());
+}
+}
 
 public function dataHS()
 {
-    $data = DataHS::latest()->get();
+    $data = DataHS::orderBy('kode_hs', 'asc')->get();
     return view('admin.data.hs', compact('data'));
 }
 
 public function indexHS()
 {
-    $dataHS = DataHS::latest()->get();
+    $data = DataHS::orderBy('kode_hs', 'asc')->get();    
     return view('admin.data.hs', compact('dataHS'));
 }
 

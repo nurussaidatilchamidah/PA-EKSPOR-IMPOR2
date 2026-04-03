@@ -4,7 +4,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<h2 class="text-xl font-bold mb-6">Kelola Data Ekspor Impor Nasional Bulanan Tahun 2025</h2>
+<h2 class="text-xl font-bold mb-6">Kelola Data Ekspor Impor Nasional Bulanan</h2>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
