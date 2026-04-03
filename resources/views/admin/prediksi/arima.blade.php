@@ -2,49 +2,34 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto px-4">
-
-<h1 class="text-2xl font-bold mb-6">
-Analisis dan Prediksi Ekspor dan Impor Menggunakan Metode ARIMA
+<h1 class="text-xl font-bold mb-6">
+Prediksi Ekspor dan Impor Menggunakan Metode ARIMA
 </h1>
 
 <!-- CARD STATISTIK -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
 <div class="bg-white shadow rounded-lg p-6">
-<h3 class="text-gray-500 text-sm">Prediksi Periode Berikutnya</h3>
+<h3 class="text-black-500 text-sm">Prediksi Ekspor</h3>
 <p class="text-2xl font-bold text-blue-600">
-{{ number_format($prediksiEkspor,0,',','.') }}
+{{ number_format($prediksiEkspor[0] ?? 0,0,',','.') }}
 </p>
-<p class="text-muted small mt-2">
+<p class="text-gray-500 text-sm mt-2">
 Nilai prediksi diperoleh menggunakan metode ARIMA berdasarkan pola historis data ekspor sebelumnya.
 </p>
 </div>
 
 <div class="bg-white shadow rounded-lg p-6">
-<h3 class="text-gray-500 text-sm">Mean Absolute Error (MAE)</h3>
-<p class="text-2xl font-bold text-green-600">
-{{ number_format($maeEkspor,0,',','.') }}
+<h3 class="text-black-500 text-sm">Prediksi Impor</h3>
+<p class="text-2xl font-bold text-orange-500">
+{{ number_format($prediksiImpor[0] ?? 0,0,',','.') }}
 </p>
-<p class="text-muted small mt-2">
-MAE menunjukkan rata-rata selisih antara nilai aktual dengan nilai prediksi.
-Semakin kecil nilai MAE maka akurasi model semakin baik.
-</p>
-</div>
-
-<div class="bg-white shadow rounded-lg p-6">
-<h3 class="text-gray-500 text-sm">Root Mean Square Error (RMSE)</h3>
-<p class="text-2xl font-bold text-red-600">
-{{ number_format($rmseEkspor,0,',','.') }}
-</p>
-<p class="text-muted small mt-2">
-RMSE mengukur tingkat kesalahan model dengan penalti lebih besar pada kesalahan besar.
-Nilai RMSE yang kecil menunjukkan model prediksi yang lebih baik.
+<p class="text-gray-500 text-sm mt-2">
+Nilai prediksi diperoleh menggunakan metode ARIMA berdasarkan pola historis data impor sebelumnya.
 </p>
 </div>
 
 </div>
-
 
 <!-- GRAFIK -->
 <div class="bg-white shadow rounded-lg p-6 mb-8">
@@ -55,16 +40,13 @@ Grafik Data Ekspor dan Impor dengan Prediksi ARIMA
 
 <canvas id="chartEkspor" height="100"></canvas>
 
-<p class="text-sm text-gray-600 mt-4">
-Berdasarkan hasil pemodelan ARIMA, nilai ekspor pada periode berikutnya diperkirakan sebesar 
-<strong>{{ number_format($prediksiEkspor,0,',','.') }}</strong>.
-Model memiliki tingkat kesalahan prediksi sebesar 
-MAE <strong>{{ number_format($maeEkspor,0,',','.') }}</strong> dan 
-RMSE <strong>{{ number_format($rmseEkspor,0,',','.') }}</strong>.
-</p>
-
 </div>
 
+<p class="text-sm text-gray-600 mt-4">
+Berdasarkan hasil pemodelan ARIMA, nilai ekspor pada periode berikutnya diperkirakan sebesar 
+<strong>{{ number_format($prediksiEkspor[0] ?? 0,0,',','.') }}</strong>.
+Prediksi ini dihasilkan dari analisis pola data historis yang telah dimodelkan menggunakan metode ARIMA.
+</p>
 
 <!-- TABEL HASIL FORECAST -->
 <div class="bg-white shadow rounded-lg p-6 mb-8">
@@ -87,18 +69,28 @@ Tabel Hasil Prediksi ARIMA
 
 <tbody>
 
+{{-- DATA HISTORIS --}}
 @foreach($labels as $i => $periode)
+    @if($i < count($dataEkspor))
+    <tr class="text-center">
+        <td class="border px-4 py-2">{{ $periode }}</td>
+        <td class="border px-4 py-2">
+            {{ number_format($dataEkspor[$i],0,',','.') }}
+        </td>
+        <td class="border px-4 py-2">-</td>
+    </tr>
+    @endif
+@endforeach
 
-<tr class="text-center">
-<td class="border px-4 py-2">{{ $periode }}</td>
-<td class="border px-4 py-2">
-{{ number_format($dataEkspor[$i] ?? 0,0,',','.') }}
-</td>
-<td class="border px-4 py-2 text-blue-600 font-semibold">
-{{ number_format($dataPrediksiEkspor[$i] ?? 0,0,',','.') }}
-</td>
+{{-- DATA PREDIKSI --}}
+@foreach($prediksiEkspor as $i => $pred)
+<tr class="text-center bg-blue-50">
+    <td class="border px-4 py-2">Prediksi {{ $i+1 }}</td>
+    <td class="border px-4 py-2">-</td>
+    <td class="border px-4 py-2 text-blue-600 font-semibold">
+        {{ number_format($pred,0,',','.') }}
+    </td>
 </tr>
-
 @endforeach
 
 </tbody>

@@ -34,19 +34,24 @@ for p in range(0,3):
             except:
                 continue
 
-# prediksi 1 periode untuk evaluasi
-forecast_test = best_model.forecast(steps=3)
+# ================= RETRAIN MODEL =================
+final_model = ARIMA(series, order=best_order).fit()
+
+# prediksi masa depan
+forecast_test = final_model.forecast(steps=1)
 
 actual = test.values
 
 mae = np.mean(np.abs(test - forecast_test))
 rmse = np.sqrt(np.mean((test - forecast_test) ** 2))
 
+mae = float(mae) if not np.isnan(mae) else 0.0
+rmse = float(rmse) if not np.isnan(rmse) else 0.0
 
 result = {
-    "prediksi": float(forecast_test.iloc[0]),
-    "mae": float(mae),
-    "rmse": float(rmse),
+    "prediksi": forecast_test.tolist(),
+    "mae": mae,
+    "rmse": rmse,
     "model": str(best_order)
 }
 

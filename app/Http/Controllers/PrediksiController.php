@@ -62,28 +62,48 @@ class PrediksiController extends Controller
 
         $resultImpor = json_decode($outputImpor, true);
 
-       // ================= DATA GRAFIK =================
+// ================= DATA GRAFIK =================
 
-        $labels = $bulan;
-        $labels[] = "Prediksi";
+// ubah ke float
+$dataEkspor = array_map('floatval', $data_ekspor);
+$dataImpor = array_map('floatval', $data_impor);
 
-        // historis
-        $dataEksporChart = $data_ekspor;
-        $dataEksporChart[] = null;
+// forecast (array)
+$forecastEkspor = $resultEkspor['prediksi'];
+$forecastImpor = $resultImpor['prediksi'];
 
-        $dataImporChart = $data_impor;
-        $dataImporChart[] = null;
+// labels
+$labels = $bulan;
 
-        // prediksi ekspor
-        $dataPrediksiEkspor = array_fill(0, count($labels), null);
-        $dataPrediksiEkspor[count($labels)-2] = end($data_ekspor);
-        $dataPrediksiEkspor[count($labels)-1] = $resultEkspor['prediksi'];
+// tambah label prediksi
+foreach ($forecastEkspor as $i => $v) {
+    $labels[] = "Prediksi " . ($i+1);
+}
 
-        // prediksi impor
-        $dataPrediksiImpor = array_fill(0, count($labels), null);
-        $dataPrediksiImpor[count($labels)-2] = end($data_impor);
-        $dataPrediksiImpor[count($labels)-1] = $resultImpor['prediksi'];
+// historis + null
+$dataEksporChart = $dataEkspor;
+$dataImporChart = $dataImpor;
 
+foreach ($forecastEkspor as $v) {
+    $dataEksporChart[] = null;
+    $dataImporChart[] = null;
+}
+
+// prediksi
+$dataPrediksiEkspor = array_fill(0, count($dataEkspor), null);
+$dataPrediksiImpor = array_fill(0, count($dataImpor), null);
+
+// sambung titik terakhir
+$dataPrediksiEkspor[count($dataEkspor)-1] = end($dataEkspor);
+$dataPrediksiImpor[count($dataImpor)-1] = end($dataImpor);
+
+// tambah forecast
+foreach ($forecastEkspor as $v) {
+    $dataPrediksiEkspor[] = $v;
+}
+foreach ($forecastImpor as $v) {
+    $dataPrediksiImpor[] = $v;
+}
 
         // ================= VIEW =================
         return view('admin.prediksi.arima', [
