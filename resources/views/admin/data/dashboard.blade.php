@@ -9,34 +9,50 @@
 <!-- ===================== CARD RINGKASAN ===================== -->
 <div class="grid grid-cols-4 gap-6 mb-8">
 
-    <div class="bg-green-600 text-white p-6 rounded-xl shadow-lg">
-        <h2 class="text-sm uppercase tracking-wide">Total Ekspor {{ $tahun }}</h2>
-        <p class="text-2xl font-bold mt-2">
-            $ {{ number_format($totalEkspor,0,',','.') }}
-        </p>
-    </div>
+<div class="bg-green-600 text-white p-6 rounded-xl shadow-lg">
+    <h2 class="text-sm uppercase tracking-wide">Total Ekspor</h2>
+    <p class="text-2xl font-bold mt-2">
+        $ {{ number_format($totalEkspor,0,',','.') }}
+    </p>
+    <p class="text-xs mt-2 text-green-100">
+        Akumulasi nilai ekspor dari seluruh data bulanan
+    </p>
+</div>
 
-    <div class="bg-red-600 text-white p-6 rounded-xl shadow-lg">
-        <h2 class="text-sm uppercase tracking-wide">Total Impor {{ $tahun }}</h2>
-        <p class="text-2xl font-bold mt-2">
-            $ {{ number_format($totalImpor,0,',','.') }}
-        </p>
-    </div>
+<div class="bg-red-600 text-white p-6 rounded-xl shadow-lg">
+    <h2 class="text-sm uppercase tracking-wide">Total Impor</h2>
+    <p class="text-2xl font-bold mt-2">
+        $ {{ number_format($totalImpor,0,',','.') }}
+    </p>
+    <p class="text-xs mt-2 text-red-100">
+        Total nilai impor berdasarkan data bulanan 
+    </p>
+</div>
 
-    <div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg">
-        <h2 class="text-sm uppercase tracking-wide">Surplus / Defisit</h2>
-        <p class="text-2xl font-bold mt-2">
-            $ {{ number_format($selisih,0,',','.') }}
-        </p>
-    </div>
+<div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg">
+    <h2 class="text-sm uppercase tracking-wide">
+    {{ $selisih >= 0 ? 'Surplus' : 'Defisit' }}
+</h2>
 
-    <div class="bg-gray-800 text-white p-6 rounded-xl shadow-lg">
-        <h2 class="text-sm uppercase tracking-wide">Total Record</h2>
-        <p class="text-lg font-semibold mt-2">
-            Bulanan: {{ $totalDataBulanan }} <br>
-            HS: {{ $totalDataHS }}
-        </p>
-    </div>
+<p class="text-2xl font-bold mt-2">
+    $ {{ number_format(abs($selisih),0,',','.') }}
+</p>
+
+<p class="text-xs mt-2 text-blue-100">
+    Selisih antara ekspor dan impor (Ekspor - Impor)
+</p>
+</div>
+
+<div class="bg-gray-800 text-white p-6 rounded-xl shadow-lg">
+    <h2 class="text-sm uppercase tracking-wide">Total Record</h2>
+    <p class="text-lg font-semibold mt-2">
+        Bulanan: {{ $totalDataBulanan }} <br>
+        HS: {{ $totalDataHS }}
+    </p>
+    <p class="text-xs mt-2 text-gray-300">
+        Jumlah seluruh data yang tersimpan dalam sistem
+    </p>
+</div>
 
 </div>
 
@@ -47,10 +63,10 @@
     <!-- LINE CHART -->
         <div class="bg-white p-6 rounded-xl shadow-lg">
         <h2 class="text-lg font-bold mb-4">
-            Grafik Ekspor & Impor Tahun {{ $tahun }}
+            Grafik Ekspor & Impor 
         </h2>
         <p class="text-sm text-gray-500 mb-2">
-        Menampilkan perbandingan nilai ekspor dan impor per bulan tahun {{ $tahun }}.
+        Menampilkan nilai ekspor dan impor per bulan berdasarkan data bulanan terbaru yang diinputkan
         </p>
 
         <div id="chartBulanan"></div>
@@ -62,8 +78,7 @@
             Treemap Komoditas Ekspor (Top 10)
         </h2>
         <p class="text-sm text-gray-500 mb-2">
-    Menampilkan 8 komoditas dengan nilai ekspor tertinggi tahun {{ $tahun }}.
-        </p>
+        Menampilkan 10 komoditas dengan nilai ekspor tertinggi berdasarkan Kode HS 2 Digit
 
         <div id="chartHs"></div>
     </div>
