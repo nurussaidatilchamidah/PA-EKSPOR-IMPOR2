@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Process;
+use Carbon\Carbon;
 
 class PrediksiController extends Controller
 {
@@ -13,7 +14,9 @@ class PrediksiController extends Controller
             ->orderBy('id')
             ->get();
 
-        $bulan = $data->pluck('bulan')->toArray();
+        $bulan = $data->pluck('bulan')->map(function($b, $i) {
+            return $b ?? "Periode " . ($i+1);
+        })->toArray();
 
         $data_ekspor = $data->pluck('nilai_ekspor')->toArray();
         $data_impor = $data->pluck('nilai_impor')->toArray();
@@ -62,48 +65,48 @@ class PrediksiController extends Controller
 
         $resultImpor = json_decode($outputImpor, true);
 
-// ================= DATA GRAFIK =================
+        // ================= DATA GRAFIK =================
 
-// ubah ke float
-$dataEkspor = array_map('floatval', $data_ekspor);
-$dataImpor = array_map('floatval', $data_impor);
+        // data asli
+        $dataEkspor = array_map('floatval', $data_ekspor);
+        $dataImpor = array_map('floatval', $data_impor);
 
-// forecast (array)
-$forecastEkspor = $resultEkspor['prediksi'];
-$forecastImpor = $resultImpor['prediksi'];
+        // prediksi (anggap 1 langkah dulu biar stabil)
+        $forecastEkspor = $resultEkspor['prediksi']; // array
+        $forecastImpor = $resultImpor['prediksi'];   // array
 
-// labels
-$labels = $bulan;
+        // labels
+        $labels = $bulan;
 
-// tambah label prediksi
-foreach ($forecastEkspor as $i => $v) {
-    $labels[] = "Prediksi " . ($i+1);
-}
+        // tambahkan label prediksi
+        foreach ($forecastEkspor as $i => $v) {
+        $labels[] = "Prediksi " . ($i+1);
+    }
 
-// historis + null
-$dataEksporChart = $dataEkspor;
-$dataImporChart = $dataImpor;
+        // ================= DATA HISTORIS =================
 
-foreach ($forecastEkspor as $v) {
-    $dataEksporChart[] = null;
-    $dataImporChart[] = null;
-}
+        // historis + null di akhir
+        $dataEksporChart = $dataEkspor;
+        $dataImporChart = $dataImpor;
 
-// prediksi
-$dataPrediksiEkspor = array_fill(0, count($dataEkspor), null);
-$dataPrediksiImpor = array_fill(0, count($dataImpor), null);
+        foreach ($forecastEkspor as $v) {
+            $dataEksporChart[] = null;
+            $dataImporChart[] = null;
+        }
 
-// sambung titik terakhir
-$dataPrediksiEkspor[count($dataEkspor)-1] = end($dataEkspor);
-$dataPrediksiImpor[count($dataImpor)-1] = end($dataImpor);
+        // ================= DATA PREDIKSI =================
 
-// tambah forecast
-foreach ($forecastEkspor as $v) {
-    $dataPrediksiEkspor[] = $v;
-}
-foreach ($forecastImpor as $v) {
-    $dataPrediksiImpor[] = $v;
-}
+        // null sepanjang historis
+        $dataPrediksiEkspor = array_fill(0, count($dataEkspor), null);
+        $dataPrediksiImpor = array_fill(0, count($dataImpor), null);
+
+        // jangan sambung titik terakhir
+        $dataPrediksiEkspor = array_fill(0, count($dataEkspor), null);
+
+        // langsung tambah prediksi
+        foreach ($forecastEkspor as $v) {
+            $dataPrediksiEkspor[] = $v;
+        }
 
         // ================= VIEW =================
         return view('admin.prediksi.arima', [

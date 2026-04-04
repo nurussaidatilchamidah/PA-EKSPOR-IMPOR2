@@ -124,7 +124,7 @@
     </div>
             <a href="{{ route('login') }}" 
             class="text-white border border-white px-5 py-2 rounded-full hover:bg-white hover:text-blue-700 transition font-semibold">
-             Admin Login
+            Login
             </a>
 
     </nav>

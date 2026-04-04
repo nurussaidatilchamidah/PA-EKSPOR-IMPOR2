@@ -11,7 +11,7 @@ Prediksi Ekspor dan Impor Menggunakan Metode ARIMA
 
 <div class="bg-white shadow rounded-lg p-6">
 <h3 class="text-black-500 text-sm">Prediksi Ekspor</h3>
-<p class="text-2xl font-bold text-blue-600">
+<p class="text-2xl font-bold text-red-500">
 {{ number_format($prediksiEkspor[0] ?? 0,0,',','.') }}
 </p>
 <p class="text-gray-500 text-sm mt-2">
@@ -21,7 +21,7 @@ Nilai prediksi diperoleh menggunakan metode ARIMA berdasarkan pola historis data
 
 <div class="bg-white shadow rounded-lg p-6">
 <h3 class="text-black-500 text-sm">Prediksi Impor</h3>
-<p class="text-2xl font-bold text-orange-500">
+<p class="text-2xl font-bold text-orange-400">
 {{ number_format($prediksiImpor[0] ?? 0,0,',','.') }}
 </p>
 <p class="text-gray-500 text-sm mt-2">
@@ -137,7 +137,6 @@ Evaluasi model dilakukan menggunakan nilai <strong>MAE</strong> dan <strong>RMSE
 </div>
 
 </div>
-
 
 <!-- CHART -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
