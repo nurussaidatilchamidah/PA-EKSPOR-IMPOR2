@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Process;
-use Carbon\Carbon;
+use Carbon\Carbon;  
 
 class PrediksiController extends Controller
 {
@@ -15,8 +15,8 @@ class PrediksiController extends Controller
             ->get();
 
         $bulan = $data->pluck('bulan')->map(function($b, $i) {
-            return $b ?? "Periode " . ($i+1);
-        })->toArray();
+    return $b ? Carbon::parse($b)->format('M Y') : "Periode " . ($i+1);
+})->toArray();
 
         $data_ekspor = $data->pluck('nilai_ekspor')->toArray();
         $data_impor = $data->pluck('nilai_impor')->toArray();
@@ -79,9 +79,13 @@ class PrediksiController extends Controller
         $labels = $bulan;
 
         // tambahkan label prediksi
+        $bulanArray = $data->pluck('bulan')->toArray();
+        $lastDate = Carbon::parse(end($bulanArray));
+
         foreach ($forecastEkspor as $i => $v) {
-        $labels[] = "Prediksi " . ($i+1);
-    }
+            $lastDate->addMonth();
+            $labels[] = $lastDate->format('M Y');
+        }
 
         // ================= DATA HISTORIS =================
 
@@ -106,6 +110,9 @@ class PrediksiController extends Controller
         // langsung tambah prediksi
         foreach ($forecastEkspor as $v) {
             $dataPrediksiEkspor[] = $v;
+        }
+        foreach ($forecastImpor as $v) {
+            $dataPrediksiImpor[] = $v;
         }
 
         // ================= VIEW =================

@@ -48,55 +48,6 @@ Berdasarkan hasil pemodelan ARIMA, nilai ekspor pada periode berikutnya diperkir
 Prediksi ini dihasilkan dari analisis pola data historis yang telah dimodelkan menggunakan metode ARIMA.
 </p>
 
-<!-- TABEL HASIL FORECAST -->
-<div class="bg-white shadow rounded-lg p-6 mb-8">
-
-<h2 class="text-lg font-semibold mb-4">
-Tabel Hasil Prediksi ARIMA
-</h2>
-
-<div class="overflow-x-auto">
-
-<table class="min-w-full border border-gray-200">
-
-<thead class="bg-gray-100">
-<tr>
-<th class="px-4 py-2 border">Periode</th>
-<th class="px-4 py-2 border">Data Ekspor</th>
-<th class="px-4 py-2 border">Prediksi ARIMA</th>
-</tr>
-</thead>
-
-<tbody>
-
-{{-- DATA HISTORIS --}}
-@foreach($labels as $i => $periode)
-    @if($i < count($dataEkspor))
-    <tr class="text-center">
-        <td class="border px-4 py-2">{{ $periode }}</td>
-        <td class="border px-4 py-2">
-            {{ number_format($dataEkspor[$i],0,',','.') }}
-        </td>
-        <td class="border px-4 py-2">-</td>
-    </tr>
-    @endif
-@endforeach
-
-{{-- DATA PREDIKSI --}}
-@foreach($prediksiEkspor as $i => $pred)
-<tr class="text-center bg-blue-50">
-    <td class="border px-4 py-2">Prediksi {{ $i+1 }}</td>
-    <td class="border px-4 py-2">-</td>
-    <td class="border px-4 py-2 text-blue-600 font-semibold">
-        {{ number_format($pred,0,',','.') }}
-    </td>
-</tr>
-@endforeach
-
-</tbody>
-
-</table>
-
 </div>
 
 </div>
