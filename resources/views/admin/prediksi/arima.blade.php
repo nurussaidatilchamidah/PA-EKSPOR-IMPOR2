@@ -42,52 +42,10 @@ Grafik Data Ekspor dan Impor dengan Prediksi ARIMA
 
 </div>
 
-<p class="text-sm text-gray-600 mt-4">
-Berdasarkan hasil pemodelan ARIMA, nilai ekspor pada periode berikutnya diperkirakan sebesar 
-<strong>{{ number_format($prediksiEkspor[0] ?? 0,0,',','.') }}</strong>.
-Prediksi ini dihasilkan dari analisis pola data historis yang telah dimodelkan menggunakan metode ARIMA.
-</p>
-
 </div>
 
 </div>
 
-
-<!-- PENJELASAN METODE -->
-<div class="bg-white shadow rounded-lg p-6">
-
-<h2 class="text-lg font-semibold mb-4">
-Penjelasan Perhitungan Metode ARIMA
-</h2>
-
-<p class="mb-3">
-Metode ARIMA (AutoRegressive Integrated Moving Average) digunakan untuk melakukan peramalan data time series berdasarkan pola historis data. 
-Model yang digunakan pada sistem ini adalah ARIMA(1,1,1).
-</p>
-
-<ul class="list-disc ml-6 space-y-2">
-
-<li>
-<strong>AR (AutoRegressive)</strong> menggunakan hubungan antara nilai sekarang dengan nilai periode sebelumnya.
-</li>
-
-<li>
-<strong>I (Integrated)</strong> digunakan untuk membuat data menjadi stasioner melalui proses differencing.
-</li>
-
-<li>
-<strong>MA (Moving Average)</strong> menggunakan error pada periode sebelumnya untuk memperbaiki hasil prediksi.
-</li>
-
-<li>
-Evaluasi model dilakukan menggunakan nilai <strong>MAE</strong> dan <strong>RMSE</strong> untuk mengetahui tingkat akurasi model.
-</li>
-
-</ul>
-
-</div>
-
-</div>
 
 <!-- CHART -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

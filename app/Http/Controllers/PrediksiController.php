@@ -14,9 +14,9 @@ class PrediksiController extends Controller
             ->orderBy('id')
             ->get();
 
-        $bulan = $data->pluck('bulan')->map(function($b, $i) {
-    return $b ? Carbon::parse($b)->format('M Y') : "Periode " . ($i+1);
-})->toArray();
+        $bulan = $data->pluck('tanggal')->map(function($b) {
+            return \Carbon\Carbon::parse($b)->translatedFormat('M Y');
+        })->toArray();
 
         $data_ekspor = $data->pluck('nilai_ekspor')->toArray();
         $data_impor = $data->pluck('nilai_impor')->toArray();
@@ -72,20 +72,17 @@ class PrediksiController extends Controller
         $dataImpor = array_map('floatval', $data_impor);
 
         // prediksi (anggap 1 langkah dulu biar stabil)
-        $forecastEkspor = $resultEkspor['prediksi']; // array
-        $forecastImpor = $resultImpor['prediksi'];   // array
+        $forecastEkspor = (array) $resultEkspor['prediksi'];
+        $forecastImpor = (array) $resultImpor['prediksi'];
 
         // labels
         $labels = $bulan;
 
         // tambahkan label prediksi
-        $bulanArray = $data->pluck('bulan')->toArray();
-        $lastDate = Carbon::parse(end($bulanArray));
+        $lastDate = \Carbon\Carbon::parse($data->last()->tanggal);
+        $nextDate = $lastDate->copy()->addMonth();
 
-        foreach ($forecastEkspor as $i => $v) {
-            $lastDate->addMonth();
-            $labels[] = $lastDate->format('M Y');
-        }
+        $labels[] = $nextDate->translatedFormat('M Y');
 
         // ================= DATA HISTORIS =================
 
@@ -103,9 +100,6 @@ class PrediksiController extends Controller
         // null sepanjang historis
         $dataPrediksiEkspor = array_fill(0, count($dataEkspor), null);
         $dataPrediksiImpor = array_fill(0, count($dataImpor), null);
-
-        // jangan sambung titik terakhir
-        $dataPrediksiEkspor = array_fill(0, count($dataEkspor), null);
 
         // langsung tambah prediksi
         foreach ($forecastEkspor as $v) {
