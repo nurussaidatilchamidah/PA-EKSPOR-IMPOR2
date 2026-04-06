@@ -15,31 +15,14 @@ series = pd.Series(data).astype(float)
 train = series[:-3]
 test = series[-3:]
 
-best_aic = float("inf")
-best_order = None
-best_model = None
-
-# cari model ARIMA terbaik
-for p in range(0,3):
-    for d in range(0,2):
-        for q in range(0,3):
-            try:
-                model = ARIMA(train, order=(p,d,q))
-                model_fit = model.fit()
-
-                if model_fit.aic < best_aic:
-                    best_aic = model_fit.aic
-                    best_order = (p,d,q)
-                    best_model = model_fit
-            except:
-                continue
+# pake arima (1,1,1)
+best_order = (1,1,1)
 
 # ================= RETRAIN MODEL =================
 final_model = ARIMA(series, order=best_order).fit()
 
 # prediksi masa depan
-forecast_test = final_model.forecast(steps=1)
-
+forecast_test = final_model.forecast(steps=5)
 actual = test.values
 
 mae = np.mean(np.abs(test - forecast_test))

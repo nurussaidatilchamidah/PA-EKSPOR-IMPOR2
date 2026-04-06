@@ -79,10 +79,13 @@ class PrediksiController extends Controller
         $labels = $bulan;
 
         // tambahkan label prediksi
-        $lastDate = \Carbon\Carbon::parse($data->last()->tanggal);
-        $nextDate = $lastDate->copy()->addMonth();
+$lastDate = \Carbon\Carbon::parse($data->last()->tanggal);
 
-        $labels[] = $nextDate->translatedFormat('M Y');
+// looping sesuai jumlah prediksi
+foreach ($forecastEkspor as $i => $v) {
+    $nextDate = $lastDate->copy()->addMonths($i + 1);
+    $labels[] = $nextDate->translatedFormat('M Y');
+}
 
         // ================= DATA HISTORIS =================
 

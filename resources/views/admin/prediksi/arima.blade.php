@@ -2,32 +2,11 @@
 
 @section('content')
 
-<h1 class="text-xl font-bold mb-6">
+<h1 class="text-xl font-bold mb-3">
 Prediksi Ekspor dan Impor Menggunakan Metode ARIMA
 </h1>
 
-<!-- CARD STATISTIK -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-
-<div class="bg-white shadow rounded-lg p-6">
-<h3 class="text-black-500 text-sm">Prediksi Ekspor</h3>
-<p class="text-2xl font-bold text-red-500">
-{{ number_format($prediksiEkspor[0] ?? 0,0,',','.') }}
-</p>
-<p class="text-gray-500 text-sm mt-2">
-Nilai prediksi diperoleh menggunakan metode ARIMA berdasarkan pola historis data ekspor sebelumnya.
-</p>
-</div>
-
-<div class="bg-white shadow rounded-lg p-6">
-<h3 class="text-black-500 text-sm">Prediksi Impor</h3>
-<p class="text-2xl font-bold text-orange-400">
-{{ number_format($prediksiImpor[0] ?? 0,0,',','.') }}
-</p>
-<p class="text-gray-500 text-sm mt-2">
-Nilai prediksi diperoleh menggunakan metode ARIMA berdasarkan pola historis data impor sebelumnya.
-</p>
-</div>
 
 </div>
 
@@ -39,6 +18,10 @@ Grafik Data Ekspor dan Impor dengan Prediksi ARIMA
 </h2>
 
 <canvas id="chartEkspor" height="100"></canvas>
+
+<p class="text-sm text-gray-500 mt-4 italic">
+Data yang digunakan merupakan nilai ekspor dan impor bulanan (dalam satuan USD).
+</p>
 
 </div>
 
