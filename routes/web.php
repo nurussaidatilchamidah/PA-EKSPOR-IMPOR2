@@ -54,4 +54,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 // Prediksi Routes
 Route::get('/admin/prediksi-arima',[PrediksiController::class,'arima'])->name('prediksi.arima');
 
+// evaluasi model Routes
+Route::get('/admin/evaluasi-model', [PrediksiController::class, 'evaluasi'])->name('evaluasi.model');
+
 require __DIR__.'/auth.php';

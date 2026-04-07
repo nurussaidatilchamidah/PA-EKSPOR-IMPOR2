@@ -79,13 +79,13 @@ class PrediksiController extends Controller
         $labels = $bulan;
 
         // tambahkan label prediksi
-$lastDate = \Carbon\Carbon::parse($data->last()->tanggal);
+        $lastDate = \Carbon\Carbon::parse($data->last()->tanggal);
 
-// looping sesuai jumlah prediksi
-foreach ($forecastEkspor as $i => $v) {
-    $nextDate = $lastDate->copy()->addMonths($i + 1);
-    $labels[] = $nextDate->translatedFormat('M Y');
-}
+        // looping sesuai jumlah prediksi
+        foreach ($forecastEkspor as $i => $v) {
+            $nextDate = $lastDate->copy()->addMonths($i + 1);
+            $labels[] = $nextDate->translatedFormat('M Y');
+        }
 
         // ================= DATA HISTORIS =================
 
@@ -130,4 +130,87 @@ foreach ($forecastEkspor as $i => $v) {
             'dataPrediksiImpor' => $dataPrediksiImpor,
         ]);
     }
+
+// ================= EVALUASI MODEL =================
+public function evaluasi()
+{
+    $data = DB::table('data_ekspor_impors')
+        ->orderBy('id')
+        ->get();
+
+    // ambil tanggal buat label
+    $labels = $data->pluck('tanggal')->map(function($tgl) {
+        return \Carbon\Carbon::parse($tgl)->translatedFormat('M Y');
+    })->toArray();
+
+    $data_ekspor = $data->pluck('nilai_ekspor')->toArray();
+    $data_impor = $data->pluck('nilai_impor')->toArray();
+
+    $jsonEkspor = json_encode($data_ekspor);
+    $jsonImpor = json_encode($data_impor);
+
+    $python = "C:\\Users\\IDEAPAD\\AppData\\Local\\Programs\\Python\\Python313\\python.exe";
+    $script = base_path('python/arima.py');
+
+    // ===== EKSPOR =====
+    $processEkspor = new Process([$python, $script, $jsonEkspor]);
+    $processEkspor->run();
+
+    if (!$processEkspor->isSuccessful()) {
+        dd("Error Python Ekspor:", $processEkspor->getErrorOutput());
+    }
+
+    $resultEkspor = json_decode(trim($processEkspor->getOutput()), true);
+
+    // ===== IMPOR =====
+    $processImpor = new Process([$python, $script, $jsonImpor]);
+    $processImpor->run();
+
+    if (!$processImpor->isSuccessful()) {
+        dd("Error Python Impor:", $processImpor->getErrorOutput());
+    }
+
+    $resultImpor = json_decode(trim($processImpor->getOutput()), true);
+
+    // ================= TAMBAHAN PENTING =================
+
+    $testCount = 3; // sesuai python (test = 3 data terakhir)
+
+    // ===== evaluasi ekspor =====
+    $evaluasiEkspor = [];
+    for ($i = 0; $i < $testCount; $i++) {
+        $index = count($data_ekspor) - $testCount + $i;
+
+        $evaluasiEkspor[] = [
+            'periode' => $labels[$index],
+            'aktual' => $data_ekspor[$index],
+            'prediksi' => $resultEkspor['prediksi'][$i] ?? 0,
+        ];
+    }
+
+    // ===== evaluasi impor =====
+    $evaluasiImpor = [];
+    for ($i = 0; $i < $testCount; $i++) {
+        $index = count($data_impor) - $testCount + $i;
+
+        $evaluasiImpor[] = [
+            'periode' => $labels[$index],
+            'aktual' => $data_impor[$index],
+            'prediksi' => $resultImpor['prediksi'][$i] ?? 0,
+        ];
+    }
+
+    // ================= VIEW =================
+    return view('admin.prediksi.evaluasi', [
+        'maeEkspor' => $resultEkspor['mae'],
+        'rmseEkspor' => $resultEkspor['rmse'],
+        'maeImpor' => $resultImpor['mae'],
+        'rmseImpor' => $resultImpor['rmse'],
+        'modelARIMA' => $resultEkspor['model'],
+
+        // tambahan
+        'evaluasiEkspor' => $evaluasiEkspor,
+        'evaluasiImpor' => $evaluasiImpor,
+    ]);
+}
 }

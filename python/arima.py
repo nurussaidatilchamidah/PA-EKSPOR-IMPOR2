@@ -11,31 +11,44 @@ data = json.loads(sys.argv[1])
 
 series = pd.Series(data).astype(float)
 
-# split data
+# ================= SPLIT DATA =================
 train = series[:-3]
 test = series[-3:]
 
-# pake arima (1,1,1)
-best_order = (1,1,1)
+# ================= MODEL ARIMA =================
+order = (1,1,1)
 
-# ================= RETRAIN MODEL =================
-final_model = ARIMA(series, order=best_order).fit()
+# model untuk evaluasi (pakai TRAIN)
+model_train = ARIMA(train, order=order).fit()
 
-# prediksi masa depan
-forecast_test = final_model.forecast(steps=5)
+# model untuk prediksi masa depan (pakai SEMUA DATA)
+model_full = ARIMA(series, order=order).fit()
+
+# ================= EVALUASI =================
+
+# prediksi untuk data test (HARUS sama panjang)
+forecast_test = model_train.forecast(steps=len(test))
+
 actual = test.values
 
-mae = np.mean(np.abs(test - forecast_test))
-rmse = np.sqrt(np.mean((test - forecast_test) ** 2))
+mae = np.mean(np.abs(actual - forecast_test))
+rmse = np.sqrt(np.mean((actual - forecast_test) ** 2))
 
+# ================= PREDIKSI MASA DEPAN =================
+
+forecast_future = model_full.forecast(steps=5)
+
+# handle NaN
 mae = float(mae) if not np.isnan(mae) else 0.0
 rmse = float(rmse) if not np.isnan(rmse) else 0.0
 
+# ================= OUTPUT =================
+
 result = {
-    "prediksi": forecast_test.tolist(),
+    "prediksi": forecast_future.tolist(),
     "mae": mae,
     "rmse": rmse,
-    "model": str(best_order)
+    "model": str(order)
 }
 
 print(json.dumps(result))

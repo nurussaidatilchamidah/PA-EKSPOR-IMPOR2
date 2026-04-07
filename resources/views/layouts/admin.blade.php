@@ -58,9 +58,9 @@
     </a>
 
     <!-- Evaluasi -->
-    <a href="#"
+    <a href="{{ route('evaluasi.model') }}"
        class="flex items-center gap-2 px-4 py-2 rounded 
-       {{ request()->routeIs('evaluasi.*') ? 'bg-white text-blue-700 font-semibold' : 'text-white hover:bg-blue-700' }}">
+       {{ request()->routeIs('evaluasi.model') ? 'bg-white text-blue-700 font-semibold' : 'text-white hover:bg-blue-700' }}">
         📑 Evaluasi Model
     </a>
 
