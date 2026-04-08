@@ -190,6 +190,14 @@
             </div>
             <canvas id="chartEksporImpor" style="max-height: 400px;"></canvas>
         </div>
+        <div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+    <h5 class="fw-bold text-dark">📈 Interpretasi Prediksi ARIMA</h5>
+    <p class="text-muted mb-0">
+        Garis putus-putus pada grafik menunjukkan hasil prediksi menggunakan metode <strong>ARIMA</strong>. 
+        Prediksi ini dihasilkan berdasarkan pola historis data ekspor dan impor sebelumnya, 
+        sehingga dapat digunakan untuk memperkirakan kondisi perdagangan di periode mendatang.
+    </p>
+</div>
 
         {{-- INSIGHT DATA --}}
         <div class="card glass-card insight-card shadow border-0 rounded-4 p-4 mb-5">
@@ -234,9 +242,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-    const labels = @json($bulan);
-    const ekspor = @json($data_ekspor);
-    const impor = @json($data_impor);
+    const labels = @json($labels);
+    const ekspor = @json($dataEkspor);
+    const impor = @json($dataImpor);
+    const prediksiEkspor = @json($dataPrediksiEkspor);
+    const prediksiImpor = @json($dataPrediksiImpor);
 
     // Grafik Ekspor Impor
     new Chart(document.getElementById('chartEksporImpor'), {
@@ -271,6 +281,24 @@
                     pointBorderWidth: 2,
                     pointRadius: 5,
                     pointHoverRadius: 7
+                },
+                {
+                    label: 'Prediksi Ekspor (ARIMA)',
+                    data: prediksiEkspor,
+                    borderColor: '#ffc107',
+                    borderDash: [6,6],
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    tension: 0.4
+                },
+                {
+                    label: 'Prediksi Impor (ARIMA)',
+                    data: prediksiImpor,
+                    borderColor: '#20c997',
+                    borderDash: [6,6],
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    tension: 0.4
                 }
             ]
         },

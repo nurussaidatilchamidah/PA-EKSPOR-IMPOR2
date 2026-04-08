@@ -143,7 +143,7 @@
                     menggunakan metode ARIMA
                 </p>
 
-                <a href="/dashboardpublic"
+                <a href="/dashboard-public"
                  class="inline-flex items-center gap-4 bg-white text-blue-700 px-6 py-3 rounded-full text-lg font-semibold shadow-xl hover:scale-110 transition">
                   Lihat Dashboard →
                 </a>
