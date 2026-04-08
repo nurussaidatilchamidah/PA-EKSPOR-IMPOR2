@@ -136,34 +136,34 @@
         <div class="row mb-4 g-4">
 
             <div class="col-md-4">
-                <div class="card stat-card shadow border-0 rounded-4 p-4 text-white" style="background: linear-gradient(135deg, #4A6FA5, #166088);">
+                <div class="card stat-card shadow border-0 rounded-4 p-4 text-white h-100" style="background: linear-gradient(135deg, #4A6FA5, #166088);">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="mb-0 opacity-75">Total Ekspor</h6>
                         <div class="fs-3">📤</div>
                     </div>
-                    <h2 class="mb-0 fw-bold">Rp {{ number_format($total_ekspor) }}</h2>
-                    <small class="opacity-75 mt-2">Nilai total ekspor nasional</small>
+            <h2 class="mb-0 fw-bold text-break">$ {{ number_format($total_ekspor, 2, '.', ',') }}</h2>                    
+            <small class="opacity-75 mt-2">Nilai total ekspor nasional</small>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card stat-card delay-200 shadow border-0 rounded-4 p-4 text-white" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+                <div class="card stat-card delay-200 shadow border-0 rounded-4 p-4 text-white h-100" style="background: linear-gradient(135deg, #dc3545, #c82333);">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="mb-0 opacity-75">Total Impor</h6>
                         <div class="fs-3">📥</div>
                     </div>
-                    <h2 class="mb-0 fw-bold">Rp {{ number_format($total_impor) }}</h2>
+                    <h2 class="mb-0 fw-bold text-break">$ {{ number_format($total_impor, 2, '.', ',') }}</h2>
                     <small class="opacity-75 mt-2">Nilai total impor nasional</small>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card stat-card delay-400 shadow border-0 rounded-4 p-4 text-white" style="background: linear-gradient(135deg, #198754, #157347);">
+                <div class="card stat-card delay-400 shadow border-0 rounded-4 p-4 text-white h-100" style="background: linear-gradient(135deg, #198754, #157347);">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="mb-0 opacity-75">Neraca Perdagangan</h6>
                         <div class="fs-3">💰</div>
                     </div>
-                    <h2 class="mb-0 fw-bold">Rp {{ number_format($selisih) }}</h2>
+                    <h2 class="mb-0 fw-bold text-break">$ {{ number_format($selisih, 2, '.', ',') }}</h2>
                     <small class="opacity-75 mt-2">
                         @if($selisih > 0)
                             Surplus Perdagangan ✅
@@ -175,7 +175,11 @@
             </div>
 
         </div>
-
+        <div class="text-center mt-2 mb-4">
+            <small class="text-white opacity-75">
+                *Seluruh nilai ditampilkan dalam USD (United States Dollar)
+            </small>
+        </div>
         {{-- GRAFIK EKSPOR IMPOR --}}
         <div class="card glass-card chart-card shadow border-0 rounded-4 p-4 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -301,8 +305,8 @@
                             if (label) {
                                 label += ': ';
                             }
-                            label += 'Rp ' + context.parsed.y.toLocaleString('id-ID');
-                            return label;
+                    label += '$ ' + context.parsed.y.toLocaleString('en-US');                            
+                    return label;
                         }
                     }
                 }
@@ -315,7 +319,7 @@
                     },
                     ticks: {
                         callback: function(value) {
-                            return 'Rp ' + value.toLocaleString('id-ID');
+                            return '$ ' + value.toLocaleString('en-US');
                         },
                         font: {
                             size: 12
