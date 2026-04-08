@@ -59,13 +59,15 @@ private function convertBulan($bulan)
        // DASHBOARD
 public function dashboard()
 {
-$tahun = request('tahun') ?? 2025;
+$tahun = request('tahun');
 
 // =============================
     // CARD SUMMARY
     // =============================
-$totalEkspor = DataEksporImpor::whereYear('tanggal', $tahun)->sum('nilai_ekspor');
-$totalImpor = DataEksporImpor::whereYear('tanggal', $tahun)->sum('nilai_impor');
+$totalEkspor = DataEksporImpor::sum('nilai_ekspor');
+$totalImpor = DataEksporImpor::sum('nilai_impor');
+
+$selisih = $totalEkspor - $totalImpor;
 
     $selisih = $totalEkspor - $totalImpor;
 
@@ -79,8 +81,8 @@ $totalImpor = DataEksporImpor::whereYear('tanggal', $tahun)->sum('nilai_impor');
 $dataBulanan = DataEksporImpor::orderBy('tanggal')->get();
 
 
-$labels = $dataBulanan->pluck('tanggal')->map(function($tgl){
-    return Carbon::parse($tgl)->translatedFormat('F');
+$labels = $dataBulanan->pluck('tanggal')->map(function($item){
+        return Carbon::parse($item)->format('M Y');
 });
     $ekspor = $dataBulanan->pluck('nilai_ekspor');
     $impor  = $dataBulanan->pluck('nilai_impor');

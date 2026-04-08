@@ -118,7 +118,7 @@
     <a href="/" class="border-b-2 border-white pb-1 whitespace-nowrap">
         Home
     </a>
-    <a href="/dashboardpublic" class="hover:opacity-80 whitespace-nowrap">
+    <a href="/dashboard-public" class="hover:opacity-80 whitespace-nowrap">
         Dashboard
     </a>
     </div>

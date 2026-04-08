@@ -5,13 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PrediksiController;
+use App\Http\Controllers\DashboardPublicController;
+
 
 Route::get('/', function () {
     return view('welcome');
-});
-
-Route::get('/dashboardpublic', function () {
-    return view('dashboard-public');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -56,5 +54,8 @@ Route::get('/admin/prediksi-arima',[PrediksiController::class,'arima'])->name('p
 
 // evaluasi model Routes
 Route::get('/admin/evaluasi-model', [PrediksiController::class, 'evaluasi'])->name('evaluasi.model');
+
+// dashboard public Routes
+Route::get('/dashboard-public', [DashboardPublicController::class, 'index']);
 
 require __DIR__.'/auth.php';
