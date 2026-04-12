@@ -6,10 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\DataEksporImpor;
 use Symfony\Component\Process\Process;
 use Carbon\Carbon;
+use App\Models\DataHs;
 
 class DashboardPublicController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // ================= DATA =================
         $data = DataEksporImpor::orderBy('tanggal')->get();
@@ -30,7 +31,7 @@ class DashboardPublicController extends Controller
         $python = "C:\\Users\\IDEAPAD\\AppData\\Local\\Programs\\Python\\Python313\\python.exe";
         $script = base_path('python/arima.py');
 
-        // ===== EKSPOR =====
+        // EKSPOR
         $processEkspor = new Process([$python, $script, json_encode($data_ekspor)]);
         $processEkspor->run();
 
@@ -40,7 +41,7 @@ class DashboardPublicController extends Controller
 
         $resultEkspor = json_decode(trim($processEkspor->getOutput()), true);
 
-        // ===== IMPOR =====
+        // IMPOR
         $processImpor = new Process([$python, $script, json_encode($data_impor)]);
         $processImpor->run();
 
@@ -62,10 +63,7 @@ class DashboardPublicController extends Controller
             $nextDate = $lastDate->copy()->addMonths($i + 1);
             $labels[] = $nextDate->translatedFormat('M Y');
         }
-
-        // ================= DATA CHART =================
-
-        // historis
+        // ================= CHART =================
         $dataEksporChart = $data_ekspor;
         $dataImporChart = $data_impor;
 
@@ -74,7 +72,6 @@ class DashboardPublicController extends Controller
             $dataImporChart[] = null;
         }
 
-        // prediksi
         $dataPrediksiEkspor = array_fill(0, count($data_ekspor), null);
         $dataPrediksiImpor = array_fill(0, count($data_impor), null);
 
@@ -86,6 +83,42 @@ class DashboardPublicController extends Controller
             $dataPrediksiImpor[] = $v;
         }
 
+        // ================= FIX ARRAY =================
+        $dataEksporChart = array_values($dataEksporChart);
+        $dataImporChart = array_values($dataImporChart);
+
+        // ================= EVALUASI =================
+        $mae = 0;
+        $rmse = 0;
+
+        if(count($forecastEkspor) > 0){
+            $actual = array_slice($data_ekspor, -count($forecastEkspor));
+            $errors = [];
+
+            foreach ($forecastEkspor as $i => $pred) {
+                $errors[] = ($actual[$i] ?? 0) - $pred;
+            }
+
+            $mae = array_sum(array_map(fn($e) => abs($e), $errors)) / count($errors);
+            $rmse = sqrt(array_sum(array_map(fn($e) => pow($e,2), $errors)) / count($errors));
+        }
+
+        // ================= INSIGHT =================
+        $periodeTertinggi = count($data_ekspor) 
+            ? $labels[array_search(max($data_ekspor), $data_ekspor)] 
+            : '-';
+
+        $periodeImporTertinggi = count($data_impor) 
+            ? $labels[array_search(max($data_impor), $data_impor)] 
+            : '-';
+
+        $trend = end($data_ekspor) > $data_ekspor[0] ? 'Meningkat 📈' : 'Menurun 📉';
+
+        // ================= KOMODITAS =================
+$topKomoditas = DataHs::select('kode_hs','nama_barang')
+    ->limit(5)
+    ->get();
+
         // ================= VIEW =================
         return view('dashboard-public', [
             'labels' => $labels,
@@ -93,10 +126,15 @@ class DashboardPublicController extends Controller
             'dataImpor' => $dataImporChart,
             'dataPrediksiEkspor' => $dataPrediksiEkspor,
             'dataPrediksiImpor' => $dataPrediksiImpor,
-
             'total_ekspor' => $total_ekspor,
             'total_impor' => $total_impor,
             'selisih' => $selisih,
+            'mae' => $mae,
+            'rmse' => $rmse,
+            'topKomoditas' => $topKomoditas,
+            'periodeTertinggi' => $periodeTertinggi,
+            'periodeImporTertinggi' => $periodeImporTertinggi,
+            'trend' => $trend
         ]);
     }
 }

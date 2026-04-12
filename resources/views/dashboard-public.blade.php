@@ -180,6 +180,7 @@
                 *Seluruh nilai ditampilkan dalam USD (United States Dollar)
             </small>
         </div>
+
         {{-- GRAFIK EKSPOR IMPOR --}}
         <div class="card glass-card chart-card shadow border-0 rounded-4 p-4 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -190,6 +191,13 @@
             </div>
             <canvas id="chartEksporImpor" style="max-height: 400px;"></canvas>
         </div>
+
+<div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+    <h5 class="fw-bold text-dark">📦 Top Komoditas Ekspor</h5>
+
+    <canvas id="chartKomoditas"></canvas>
+</div>
+
         <div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
     <h5 class="fw-bold text-dark">📈 Interpretasi Prediksi ARIMA</h5>
     <p class="text-muted mb-0">
@@ -197,6 +205,44 @@
         Prediksi ini dihasilkan berdasarkan pola historis data ekspor dan impor sebelumnya, 
         sehingga dapat digunakan untuk memperkirakan kondisi perdagangan di periode mendatang.
     </p>
+</div>
+
+<div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+    <h5 class="fw-bold text-dark">📊 Evaluasi Model ARIMA</h5>
+
+    <div class="row text-center mt-3">
+        <div class="col-md-6">
+            <h6 class="text-muted">MAE</h6>
+            <h4 class="fw-bold text-primary">
+                {{ number_format($mae, 2, '.', ',') }}
+            </h4>
+        </div>
+
+        <div class="col-md-6">
+            <h6 class="text-muted">RMSE</h6>
+            <h4 class="fw-bold text-danger">
+                {{ number_format($rmse, 2, '.', ',') }}
+            </h4>
+        </div>
+    </div>
+</div>
+
+<div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+    <h5 class="fw-bold text-dark">🔮 Prediksi Periode Berikutnya</h5>
+
+    <div class="row text-center mt-3">
+        <div class="col-md-6">
+            <h6 class="text-muted">Ekspor</h6>
+            <h4 class="fw-bold text-primary">
+{{ isset($dataPrediksiEkspor) && count($dataPrediksiEkspor) ? number_format(end($dataPrediksiEkspor), 2, '.', ',') : 0 }}            </h4>
+        </div>
+
+        <div class="col-md-6">
+            <h6 class="text-muted">Impor</h6>
+            <h4 class="fw-bold text-danger">
+{{ isset($dataPrediksiImpor) && count($dataPrediksiImpor) ? number_format(end($dataPrediksiImpor), 2, '.', ',') : 0 }}            </h4>
+        </div>
+    </div>
 </div>
 
         {{-- INSIGHT DATA --}}
@@ -235,9 +281,42 @@
                     Data ini digunakan sebagai dasar dalam proses prediksi menggunakan metode <strong>ARIMA</strong> untuk memperkirakan nilai di masa mendatang.
                 </p>
             </div>
-        </div>
-
+            <div class="bg-light rounded-3 p-3 mt-3">
+    <ul class="mb-0 small">
+        <li>Ekspor tertinggi terjadi pada periode <strong>{{ $periodeTertinggi ?? '-' }}</strong></li>
+        <li>Impor tertinggi terjadi pada periode <strong>{{ $periodeImporTertinggi ?? '-' }}</strong></li>
+        <li>Tren perdagangan menunjukkan <strong>{{ $trend ?? '-' }}</strong></li>
+    </ul>
+</div>
+</div>
     </div>
+
+    <div class="card glass-card shadow border-0 rounded-4 p-4 mb-5">
+    <h5 class="fw-bold text-dark mb-3">📋 Data Ekspor-Impor</h5>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Kode HS</th>
+                    <th>Nama Barang</th>
+                    <th>Ekspor</th>
+                    <th>Impor</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($topKomoditas ?? [] as $item)
+                <tr>
+<td>{{ $loop->iteration }}</td>
+                    <td>{{ $item->nama_barang }}</td>
+                    <td>{{ number_format($item->total, 2, '.', ',') }}</td>
+                    <td>-</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -371,6 +450,25 @@
             }
         }
     });
+
+    const komoditas = @json($topKomoditas ?? []);
+
+new Chart(document.getElementById('chartKomoditas'), {
+    type: 'bar',
+    data: {
+        labels: komoditas.map(k => k.nama_barang),
+        datasets: [{
+            label: 'Total Ekspor',
+            data: komoditas.map(k => k.total),
+            backgroundColor: '#4A6FA5'
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true
+    }
+});
+
     </script>
 
 </body>
