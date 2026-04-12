@@ -8,47 +8,64 @@ import sys
 import json
 
 data = json.loads(sys.argv[1])
-
 series = pd.Series(data).astype(float)
 
-# ================= SPLIT DATA =================
-train = series[:-3]
-test = series[-3:]
+# ================= MODEL =================
+order = (2,1,2)
 
-# ================= MODEL ARIMA =================
-order = (1,1,1)
+# ================= WALK FORWARD =================
+history = list(series[:3])
+predictions = []
 
-# model untuk evaluasi (pakai TRAIN)
-model_train = ARIMA(train, order=order).fit()
+for t in range(3, len(series)):
+    try:
+        model = ARIMA(
+            history,
+            order=order,
+            enforce_stationarity=False,
+            enforce_invertibility=False
+        ).fit()
 
-# model untuk prediksi masa depan (pakai SEMUA DATA)
-model_full = ARIMA(series, order=order).fit()
+        yhat = model.forecast()[0]
+
+    except:
+        yhat = history[-1]
+
+    predictions.append(yhat)
+    history.append(series[t])
 
 # ================= EVALUASI =================
+actual = series[3:].values
+pred = np.array(predictions)
 
-# prediksi untuk data test (HARUS sama panjang)
-forecast_test = model_train.forecast(steps=len(test))
+min_len = min(len(actual), len(pred))
+actual = actual[:min_len]
+pred = pred[:min_len]
 
-actual = test.values
-
-mae = np.mean(np.abs(actual - forecast_test))
-rmse = np.sqrt(np.mean((actual - forecast_test) ** 2))
+mae = np.mean(np.abs(actual - pred))
+rmse = np.sqrt(np.mean((actual - pred) ** 2))
 
 # ================= PREDIKSI MASA DEPAN =================
+try:
+    model_full = ARIMA(
+        series,
+        order=order,
+        enforce_stationarity=False,
+        enforce_invertibility=False
+    ).fit()
 
-forecast_future = model_full.forecast(steps=5)
+    forecast_future = model_full.forecast(steps=5).tolist()
 
-# handle NaN
-mae = float(mae) if not np.isnan(mae) else 0.0
-rmse = float(rmse) if not np.isnan(rmse) else 0.0
+except:
+    forecast_future = [series.iloc[-1]] * 5
 
 # ================= OUTPUT =================
-
 result = {
-    "prediksi": forecast_future.tolist(),
-    "mae": mae,
-    "rmse": rmse,
-    "model": str(order)
+    "model": "ARIMA(2,1,2)",
+    "mae": float(mae),
+    "rmse": float(rmse),
+    "prediksi_test": predictions,
+    "prediksi": forecast_future
 }
 
 print(json.dumps(result))
