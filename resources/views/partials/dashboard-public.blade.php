@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Visualisasi Ekspor-Impor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     
     <style>
         @keyframes gradient {
@@ -103,10 +104,50 @@
         .badge:hover {
     transform: scale(1.1);
 }
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+#tabelData {
+    width: 100% !important;
+}
+#tabelData thead {
+    background: linear-gradient(135deg, #4A6FA5, #166088);
+    color: white;
+}
 
-    </style>
+#tabelData tbody tr {
+    transition: 0.2s;
+}
+
+#tabelData tbody tr:hover {
+    background-color: rgba(0,0,0,0.03);
+}
+
+.card.glass-card {
+    border-radius: 20px;
+    padding: 25px;
+}
+
+.dataTables_wrapper .dataTables_info {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 10px;
+    text-align: center;
+}
+.dataTables_length,
+.dataTables_filter,
+.dataTables_info {
+    display: none !important;
+}
+
+</style>
 </head>
 <body>
+
 <section id="dashboard" style="margin-top: 30px; padding-top: 30px; padding-bottom: 80px;">
 
 <!-- Floating Shapes Background -->
@@ -259,13 +300,13 @@
     <div class="row">
         <!-- EKSPOR -->
         <div class="col-md-6 text-center">
-            <h6 class="fw-bold text-primary">Ekspor</h6>
+            <h5 class="fw-bold text-primary">Ekspor</h5>
             <canvas id="chartEksporKomoditas"></canvas>
         </div>
 
         <!-- IMPOR -->
         <div class="col-md-6 text-center">
-            <h6 class="fw-bold text-danger">Impor</h6>
+            <h5 class="fw-bold text-danger">Impor</h5>
             <canvas id="chartImporKomoditas"></canvas>
         </div>
     </div>
@@ -275,125 +316,89 @@
             <strong>📌 Interpretasi:</strong>
         </p>
         <p class="small text-muted mb-0">
-        Warna yang sama menunjukkan komoditas yang sama pada kedua diagram. 
-        Semakin besar bagian diagram, semakin besar kontribusi komoditas tersebut       
+        Diagram menunjukkan kontribusi komoditas utama (berdasarkan kode HS) terhadap ekspor dan impor. 
+        Warna yang sama menandakan komoditas yang sama, sehingga memudahkan perbandingan. 
+        Semakin besar proporsi, semakin besar perannya dalam perdagangan.       
      </p>
     </div>
 </div>
 </div>
 
-<div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
-    <h5 class="fw-bold text-dark">📊 Evaluasi Model ARIMA</h5>
+{{-- TABEL DATA --}}
+<div class="container mt-4" style="max-width: 1150px;">
 
-    <div class="row text-center mt-3">
-        <div class="col-md-6">
-            <h6 class="text-muted">MAE</h6>
-            <h4 class="fw-bold text-primary">
-                {{ number_format($mae, 2, '.', ',') }}
-            </h4>
+    <div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+
+    <h5 class="fw-bold text-dark mb-3">
+        📋 Data Ekspor-Impor Bulanan
+    </h5>
+
+    <!-- FILTER + SEARCH -->
+    <div class="row g-2 mb-3">
+        <div class="col-md-4">
+            @php
+                $uniqueBulan = $data->pluck('tanggal')
+                    ->map(fn($t) => \Carbon\Carbon::parse($t)->translatedFormat('F Y'))
+                    ->unique();
+            @endphp
+            <select id="filterBulan" class="form-select rounded-pill">
+                <option value="">Semua Periode</option>
+                @foreach($uniqueBulan as $bulan)
+                    <option value="{{ $bulan }}">{{ $bulan }}</option>
+                @endforeach
+            </select>
         </div>
 
-        <div class="col-md-6">
-            <h6 class="text-muted">RMSE</h6>
-            <h4 class="fw-bold text-danger">
-                {{ number_format($rmse, 2, '.', ',') }}
-            </h4>
-        </div>
-    </div>
-</div>
-
-<div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
-    <h5 class="fw-bold text-dark">🔮 Prediksi Periode Berikutnya</h5>
-
-    <div class="row text-center mt-3">
-        <div class="col-md-6">
-            <h6 class="text-muted">Ekspor</h6>
-            <h4 class="fw-bold text-primary">
-{{ isset($dataPrediksiEkspor) && count($dataPrediksiEkspor) ? number_format(end($dataPrediksiEkspor), 2, '.', ',') : 0 }}            </h4>
-        </div>
-
-        <div class="col-md-6">
-            <h6 class="text-muted">Impor</h6>
-            <h4 class="fw-bold text-danger">
-{{ isset($dataPrediksiImpor) && count($dataPrediksiImpor) ? number_format(end($dataPrediksiImpor), 2, '.', ',') : 0 }}            </h4>
+        <div class="col-md-4">
+            <input type="text" id="searchCustom"
+                class="form-control rounded-pill"
+                placeholder="🔍 Cari data...">
         </div>
     </div>
-</div>
 
-        {{-- INSIGHT DATA --}}
-        <div class="card glass-card insight-card shadow border-0 rounded-4 p-4 mb-5">
-            <h4 class="mb-3 fw-bold text-dark">💡 Analisis Singkat</h4>
-
-            @if($selisih > 0)
-                <div class="alert alert-success border-0 rounded-3 mb-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="fs-2">📈</div>
-                        <div>
-                            <h6 class="mb-1 fw-bold">Surplus Perdagangan</h6>
-                            <p class="mb-0 small">
-                                Terjadi surplus perdagangan. Hal ini menunjukkan bahwa nilai ekspor lebih tinggi dibandingkan impor.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            @else
-                <div class="alert alert-danger border-0 rounded-3 mb-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="fs-2">📉</div>
-                        <div>
-                            <h6 class="mb-1 fw-bold">Defisit Perdagangan</h6>
-                            <p class="mb-0 small">
-                                Terjadi defisit perdagangan. Nilai impor lebih tinggi dibandingkan ekspor.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            <div class="bg-light rounded-3 p-3">
-                <p class="mb-0 text-dark">
-                    <strong>📌 Catatan:</strong> Berdasarkan visualisasi grafik, terlihat pola perubahan nilai ekspor dan impor setiap periode. 
-                    Data ini digunakan sebagai dasar dalam proses prediksi menggunakan metode <strong>ARIMA</strong> untuk memperkirakan nilai di masa mendatang.
-                </p>
-            </div>
-            <div class="bg-light rounded-3 p-3 mt-3">
-    <ul class="mb-0 small">
-        <li>Ekspor tertinggi terjadi pada periode <strong>{{ $periodeTertinggi ?? '-' }}</strong></li>
-        <li>Impor tertinggi terjadi pada periode <strong>{{ $periodeImporTertinggi ?? '-' }}</strong></li>
-        <li>Tren perdagangan menunjukkan <strong>{{ $trend ?? '-' }}</strong></li>
-    </ul>
-</div>
-</div>
-    </div>
-
-    <div class="card glass-card shadow border-0 rounded-4 p-4 mb-5">
-    <h5 class="fw-bold text-dark mb-3">📋 Data Ekspor-Impor</h5>
-
+    <!-- TABLE (WAJIB DI DALAM CARD) -->
     <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead>
+        <table id="tabelData" class="table table-hover align-middle text-center">
+            <thead class="table-primary">
                 <tr>
-                    <th>Kode HS</th>
-                    <th>Nama Barang</th>
-                    <th>Ekspor</th>
-                    <th>Impor</th>
+                    <th>📅 Periode</th>
+                    <th>📤 Ekspor (USD)</th>
+                    <th>⚖️ Berat Ekspor</th>
+                    <th>📥 Impor (USD)</th>
+                    <th>⚖️ Berat Impor</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($topKomoditas ?? [] as $item)
+                @foreach($data as $d)
                 <tr>
-<td>{{ $loop->iteration }}</td>
-                    <td>{{ $item->nama_barang }}</td>
-                    <td>{{ number_format($item->total, 2, '.', ',') }}</td>
-                    <td>-</td>
+                    <td>{{ \Carbon\Carbon::parse($d->tanggal)->translatedFormat('F Y') }}</td>
+                    <td class="text-primary fw-semibold">
+                        $ {{ number_format($d->nilai_ekspor, 0, ',', '.') }}
+                    </td>
+                    <td>{{ number_format($d->berat_ekspor, 0, ',', '.') }}</td>
+                    <td class="text-danger fw-semibold">
+                        $ {{ number_format($d->nilai_impor, 0, ',', '.') }}
+                    </td>
+                    <td>{{ number_format($d->berat_impor, 0, ',', '.') }}</td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
+
+    <!-- INTERPRETASI -->
+    <div class="bg-light rounded-3 p-3 mt-3">
+        <p class="small text-muted mb-0">
+            Tabel ini menampilkan data ekspor dan impor bulanan secara interaktif 
+            dengan fitur pencarian dan filter periode.
+        </p>
+    </div>
+
 </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
     <script>
     const labels = @json($labels);
@@ -602,6 +607,28 @@ new Chart(document.getElementById('chartImporKomoditas'), {
 backgroundColor: komoditasImpor.map(i => colorMap[i.nama_barang])
         }]
     }
+});
+
+// DataTables
+$(document).ready(function () {
+
+    let table = $('#tabelData').DataTable({
+        paging: true,
+        info: false,
+        lengthChange: false,
+        searching: true // WAJIB TRUE biar bisa dipakai custom search
+    });
+
+    // SEARCH CUSTOM
+    $('#searchCustom').on('keyup', function () {
+        table.search(this.value).draw();
+    });
+
+    // FILTER BULAN (kolom 0 = tanggal)
+    $('#filterBulan').on('change', function () {
+        table.column(0).search(this.value).draw();
+    });
+
 });
 
 </script>

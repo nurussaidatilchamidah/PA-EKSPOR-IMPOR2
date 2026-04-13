@@ -151,6 +151,7 @@ class DashboardPublicController extends Controller
 
         // ================= VIEW =================
         return view('welcome', [
+            'data' => $data,
             'labels' => $labels,
             'dataEkspor' => $dataEksporChart,
             'dataImpor' => $dataImporChart,
