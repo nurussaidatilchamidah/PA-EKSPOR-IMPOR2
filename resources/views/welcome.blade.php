@@ -9,6 +9,9 @@
     @vite(['resources/css/app.css'])
     
     <style>
+html {
+    scroll-behavior: smooth;
+}
         @keyframes gradient {
             0% {
                 background-position: 0% 50%;
@@ -96,8 +99,37 @@
     100% { transform: translateX(-100%); }
 }
 
+a {
+    text-decoration: none !important;
+}
+
+a:hover {
+    text-decoration: none !important;
+}
+
+a:focus, a:active {
+    outline: none;
+    box-shadow: none;
+    text-decoration: none !important;
+}
+button, a {
+    -webkit-tap-highlight-color: transparent;
+}
     </style>
 </head>
+
+<script>
+function scrollToDashboard(e) {
+    e.preventDefault();
+
+    const target = document.getElementById("dashboard");
+
+    target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+</script>
 
 <body class="min-h-screen bg-gradient-animated text-white relative overflow-x-hidden">
 
@@ -114,16 +146,8 @@
     <div class="flex items-center gap-3">
     </div>
 
-    <div class="flex items-center gap-6 sm:gap-8 md:gap-14 font-semibold text-sm sm:text-base md:text-lg">
-    <a href="/" class="border-b-2 border-white pb-1 whitespace-nowrap">
-        Home
-    </a>
-    <a href="/dashboard-public" class="hover:opacity-80 whitespace-nowrap">
-        Dashboard
-    </a>
-    </div>
             <a href="{{ route('login') }}" 
-            class="text-white border border-white px-5 py-2 rounded-full hover:bg-white hover:text-blue-700 transition font-semibold">
+            class="text-white border border-white px-5 py-2 rounded-full hover:bg-white hover:!text-blue-700 transition duration-300 font-semibold">
             Login
             </a>
 
@@ -143,11 +167,10 @@
                     menggunakan metode ARIMA
                 </p>
 
-                <a href="/dashboard-public"
-                 class="inline-flex items-center gap-4 bg-white text-blue-700 px-6 py-3 rounded-full text-lg font-semibold shadow-xl hover:scale-110 transition">
-                  Lihat Dashboard →
-                </a>
-
+            <a href="#dashboard" onclick="scrollToDashboard(event)"
+            class="no-underline inline-flex items-center gap-4 bg-white text-blue-700 px-6 py-3 rounded-full text-lg font-semibold shadow-xl hover:scale-110 transition">
+                Lihat Dashboard ↓
+            </a>
             </div>
 
             <!-- ILUSTRASI -->
@@ -159,6 +182,8 @@
 
         </section>
     </div>
+
+    @include('partials.dashboard-public')
 
 </body>
 </html>

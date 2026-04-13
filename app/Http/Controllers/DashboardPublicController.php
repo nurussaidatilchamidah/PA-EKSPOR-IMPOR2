@@ -114,13 +114,43 @@ class DashboardPublicController extends Controller
 
         $trend = end($data_ekspor) > $data_ekspor[0] ? 'Meningkat 📈' : 'Menurun 📉';
 
-        // ================= KOMODITAS =================
-$topKomoditas = DataHs::select('kode_hs','nama_barang')
-    ->limit(5)
-    ->get();
+    // ================= NERACA =================
+    $neracaPeriode = [];
+
+    foreach ($data as $item) {
+        $selisih = $item->nilai_ekspor - $item->nilai_impor;
+
+        $neracaPeriode[] = [
+            'tanggal' => Carbon::parse($item->tanggal)->translatedFormat('M Y'),
+            'selisih' => $selisih,
+            'status' => $selisih > 0 ? 'Surplus' : 'Defisit'
+        ];
+    }
+
+    $totalSurplus = count(array_filter($neracaPeriode, function($n) {
+        return $n['selisih'] > 0;
+    }));
+
+    $totalDefisit = count(array_filter($neracaPeriode, function($n) {
+        return $n['selisih'] <= 0;
+    }));
+
+            // ================= KOMODITAS =================
+    $topEkspor = DataHs::select('nama_barang')
+        ->selectRaw('SUM(nilai_ekspor) as total')
+        ->groupBy('nama_barang')
+        ->orderByDesc('total')
+        ->limit(10)
+        ->get();
+    $topImpor = DataHs::select('nama_barang')
+        ->selectRaw('SUM(nilai_impor) as total')
+        ->groupBy('nama_barang')
+        ->orderByDesc('total')
+        ->limit(10)
+        ->get();
 
         // ================= VIEW =================
-        return view('dashboard-public', [
+        return view('welcome', [
             'labels' => $labels,
             'dataEkspor' => $dataEksporChart,
             'dataImpor' => $dataImporChart,
@@ -131,10 +161,14 @@ $topKomoditas = DataHs::select('kode_hs','nama_barang')
             'selisih' => $selisih,
             'mae' => $mae,
             'rmse' => $rmse,
-            'topKomoditas' => $topKomoditas,
             'periodeTertinggi' => $periodeTertinggi,
             'periodeImporTertinggi' => $periodeImporTertinggi,
-            'trend' => $trend
+            'trend' => $trend,
+            'neracaPeriode' => $neracaPeriode,
+            'totalSurplus' => $totalSurplus,
+            'totalDefisit' => $totalDefisit,
+            'topEkspor' => $topEkspor,
+            'topImpor' => $topImpor
         ]);
     }
 }

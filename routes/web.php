@@ -56,6 +56,6 @@ Route::get('/admin/prediksi-arima',[PrediksiController::class,'arima'])->name('p
 Route::get('/admin/evaluasi-model', [PrediksiController::class, 'evaluasi'])->name('evaluasi.model');
 
 // dashboard public Routes
-Route::get('/dashboard-public', [DashboardPublicController::class, 'index']);
+Route::get('/', [DashboardPublicController::class, 'index']);
 
 require __DIR__.'/auth.php';
