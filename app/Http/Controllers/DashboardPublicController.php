@@ -24,9 +24,11 @@ class DashboardPublicController extends Controller
         $data_impor = $data->pluck('nilai_impor')->toArray();
 
         // ================= TOTAL =================
-        $total_ekspor = array_sum($data_ekspor);
-        $total_impor = array_sum($data_impor);
-        $selisih = $total_ekspor - $total_impor;
+        $insight = (new \App\Services\InsightService())->getInsight();
+
+        $total_ekspor = $insight['total_ekspor'];
+        $total_impor = $insight['total_impor'];
+        $selisih = $insight['selisih'];
 
         // ================= ARIMA =================
         $python = "C:\\Users\\IDEAPAD\\AppData\\Local\\Programs\\Python\\Python313\\python.exe";
@@ -119,12 +121,12 @@ class DashboardPublicController extends Controller
     $neracaPeriode = [];
 
     foreach ($data as $item) {
-        $selisih = $item->nilai_ekspor - $item->nilai_impor;
+        $selisihPeriode = $item->nilai_ekspor - $item->nilai_impor;
 
         $neracaPeriode[] = [
             'tanggal' => Carbon::parse($item->tanggal)->translatedFormat('M Y'),
-            'selisih' => $selisih,
-            'status' => $selisih > 0 ? 'Surplus' : 'Defisit'
+            'selisih' => $selisihPeriode,
+            'status' => $selisihPeriode > 0 ? 'Surplus' : 'Defisit'
         ];
     }
 

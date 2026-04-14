@@ -21,7 +21,8 @@ class InsightService
     $selisih = $totalEkspor - $totalImpor;
 
     // ================= RATIO & DOMINASI =================
-    $ratio = $totalImpor != 0 ? $totalEkspor / $totalImpor : 0;
+$ratio = $totalImpor > 0 ? $totalEkspor / $totalImpor : 0;
+$persenLebih = ($ratio - 1) * 100;
 
     $dominasi = $totalEkspor > $totalImpor
         ? "Ekspor Dominan"
@@ -68,7 +69,7 @@ class InsightService
         ?? 'Tidak tersedia';
 
     // ================= SMART NARASI (BI STYLE) =================
-    $narasi = "Analisis perdagangan menunjukkan kondisi **{$status}** dengan dominasi {$dominasi}. ";
+    $narasi = "Analisis perdagangan menunjukkan kondisi {$status} dengan dominasi {$dominasi}. ";
 
     $narasi .= "Ekspor menyumbang " . round($kontribusiEkspor, 2) . "% dari total perdagangan, ";
     $narasi .= "sedangkan impor menyumbang " . round($kontribusiImpor, 2) . "%. ";
@@ -85,18 +86,27 @@ class InsightService
         $narasi .= "Ekspor relatif stagnan tanpa perubahan signifikan. ";
     }
 
-    // ================= INSIGHT POINTS (UPGRADE) =================
-    $points = [
-        "Total perdagangan: Rp " . number_format($totalPerdagangan),
-        "Kontribusi ekspor: " . round($kontribusiEkspor, 2) . "%",
-        "Kontribusi impor: " . round($kontribusiImpor, 2) . "%",
-        "Trade balance ratio: " . round($ratio, 2),
-        "Selisih perdagangan: Rp " . number_format($selisih),
-        "Komoditas ekspor dominan: " . $eksporTop,
-        "Komoditas impor dominan: " . $imporTop,
-        "Status ekonomi: " . $status,
-        "Dominasi perdagangan: " . $dominasi
-    ];
+// ================= INSIGHT POINTS (VERSI EDUKATIF) =================
+
+$points = [
+    "Total perdagangan (gabungan ekspor + impor): Rp " . number_format($totalPerdagangan),
+
+    "Kontribusi ekspor terhadap total perdagangan: " . round($kontribusiEkspor, 2) . "%",
+
+    "Kontribusi impor terhadap total perdagangan: " . round($kontribusiImpor, 2) . "%",
+
+    "Trade balance ratio: " . round($ratio, 2),
+
+    "Selisih perdagangan (ekspor - impor): Rp " . number_format($selisih),
+
+    "Komoditas ekspor dominan: " . $eksporTop,
+
+    "Komoditas impor dominan: " . $imporTop,
+
+    "Status ekonomi saat ini: " . $status,
+
+    "Dominasi perdagangan: " . $dominasi
+];
 
     return [
         'ekspor_tertinggi' => $eksporTertinggi,
