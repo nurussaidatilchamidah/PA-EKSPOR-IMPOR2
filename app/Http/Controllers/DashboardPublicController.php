@@ -7,6 +7,7 @@ use App\Models\DataEksporImpor;
 use Symfony\Component\Process\Process;
 use Carbon\Carbon;
 use App\Models\DataHs;
+use App\Services\InsightService;
 
 class DashboardPublicController extends Controller
 {
@@ -149,6 +150,10 @@ class DashboardPublicController extends Controller
         ->limit(10)
         ->get();
 
+        // ========== INSIGHT ==========
+    $insightService = new InsightService();
+    $insight = $insightService->getInsight();
+
         // ================= VIEW =================
         return view('welcome', [
             'data' => $data,
@@ -169,7 +174,8 @@ class DashboardPublicController extends Controller
             'totalSurplus' => $totalSurplus,
             'totalDefisit' => $totalDefisit,
             'topEkspor' => $topEkspor,
-            'topImpor' => $topImpor
+            'topImpor' => $topImpor,
+            'insight' => $insight
         ]);
     }
 }

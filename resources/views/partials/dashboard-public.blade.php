@@ -393,6 +393,30 @@
             dengan fitur pencarian dan filter periode.
         </p>
     </div>
+</div>
+
+<!-- INSIGHT ANALISIS -->
+<div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white">
+
+    <h5 class="fw-bold text-dark mb-3">
+        📊 Insight Analisis Otomatis
+    </h5>
+
+    <p class="text-muted small mb-3" style="line-height:1.8;">
+        {!! $insight['narasi'] !!}
+    </p>
+
+    <div class="row g-2">
+
+        @foreach($insight['points'] as $point)
+        <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3 small text-dark h-100">
+                🔹 {{ $point }}
+            </div>
+        </div>
+        @endforeach
+
+    </div>
 
 </div>
 
@@ -629,6 +653,55 @@ $(document).ready(function () {
         table.column(0).search(this.value).draw();
     });
 
+});
+
+
+// EKSPOR SPARKLINE
+new Chart(document.getElementById('sparkEkspor'), {
+    type: 'line',
+    data: {
+        labels: eksporData.map((_, i) => i + 1),
+        datasets: [{
+            data: eksporData,
+            borderColor: '#22c55e',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { display: false },
+            y: { display: false }
+        }
+    }
+});
+
+// IMPOR SPARKLINE
+new Chart(document.getElementById('sparkImpor'), {
+    type: 'line',
+    data: {
+        labels: imporData.map((_, i) => i + 1),
+        datasets: [{
+            data: imporData,
+            borderColor: '#ef4444',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { display: false },
+            y: { display: false }
+        }
+    }
 });
 
 </script>
