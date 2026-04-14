@@ -16,11 +16,35 @@ class InsightService
     $totalEkspor = $data->sum('nilai_ekspor');
     $totalImpor = $data->sum('nilai_impor');
 
+    $totalPerdagangan = $totalEkspor + $totalImpor;
+
     $selisih = $totalEkspor - $totalImpor;
+
+    // ================= RATIO & DOMINASI =================
+    $ratio = $totalImpor != 0 ? $totalEkspor / $totalImpor : 0;
+
+    $dominasi = $totalEkspor > $totalImpor
+        ? "Ekspor Dominan"
+        : "Impor Dominan";
+
+    $kontribusiEkspor = $totalPerdagangan > 0
+        ? ($totalEkspor / $totalPerdagangan) * 100
+        : 0;
+
+        if ($kontribusiEkspor > 55) {
+    $interpretasiEkspor = "Ekspor sangat dominan dalam struktur perdagangan.";
+} elseif ($kontribusiEkspor > 45) {
+    $interpretasiEkspor = "Ekspor dan impor relatif seimbang.";
+} else {
+    $interpretasiEkspor = "Impor lebih dominan dalam struktur perdagangan.";
+}
+
+    $kontribusiImpor = $totalPerdagangan > 0
+        ? ($totalImpor / $totalPerdagangan) * 100
+        : 0;
 
     // ================= TREND (%) =================
     $ekspor = $data->pluck('nilai_ekspor')->values();
-
     $first = $ekspor->first();
     $last = $ekspor->last();
 
@@ -29,49 +53,68 @@ class InsightService
         $growth = (($last - $first) / $first) * 100;
     }
 
-    // ================= STATUS EKONOMI =================
-    if ($selisih > 0) {
-        $status = "Surplus perdagangan (ekspor lebih besar dari impor)";
-    } else {
-        $status = "Defisit perdagangan (impor lebih besar dari ekspor)";
-    }
+    // ================= STATUS =================
+    $status = $selisih > 0
+        ? "Surplus perdagangan"
+        : "Defisit perdagangan";
 
-    // ================= ANALISIS NARASI (DEEP) =================
-    $narasi = "Analisis menunjukkan bahwa selama periode pengamatan, ";
+    // ================= FIX KOMODITAS =================
+    $eksporTop = $eksporTertinggi->nama_barang
+        ?? $eksporTertinggi->komoditas
+        ?? 'Tidak tersedia';
 
-    $narasi .= "total ekspor mencapai Rp " . number_format($totalEkspor) . 
-    " sedangkan total impor sebesar Rp " . number_format($totalImpor) . ". ";
+    $imporTop = $imporTertinggi->nama_barang
+        ?? $imporTertinggi->komoditas
+        ?? 'Tidak tersedia';
 
-    $narasi .= "Hal ini menghasilkan selisih sebesar Rp " . number_format(abs($selisih)) . 
-    " yang menunjukkan kondisi " . strtolower($status) . ". ";
+    // ================= SMART NARASI (BI STYLE) =================
+    $narasi = "Analisis perdagangan menunjukkan kondisi **{$status}** dengan dominasi {$dominasi}. ";
 
-    if ($growth > 0) {
-        $narasi .= "Selain itu, ekspor mengalami pertumbuhan sebesar " . round($growth, 2) . "% yang mengindikasikan peningkatan aktivitas perdagangan luar negeri. ";
+    $narasi .= "Ekspor menyumbang " . round($kontribusiEkspor, 2) . "% dari total perdagangan, ";
+    $narasi .= "sedangkan impor menyumbang " . round($kontribusiImpor, 2) . "%. ";
+
+    $narasi .= "Selisih perdagangan tercatat sebesar Rp " . number_format(abs($selisih)) . ". ";
+
+    if ($growth > 5) {
+        $narasi .= "Pertumbuhan ekspor tinggi sebesar " . round($growth, 2) . "% menunjukkan ekspansi kuat sektor perdagangan. ";
+    } elseif ($growth > 0) {
+        $narasi .= "Pertumbuhan ekspor sebesar " . round($growth, 2) . "% menunjukkan tren positif namun moderat. ";
     } elseif ($growth < 0) {
-        $narasi .= "Selain itu, ekspor mengalami penurunan sebesar " . abs(round($growth, 2)) . "% yang mengindikasikan perlambatan aktivitas perdagangan luar negeri. ";
+        $narasi .= "Ekspor mengalami penurunan sebesar " . abs(round($growth, 2)) . "% yang mengindikasikan perlambatan ekonomi. ";
     } else {
-        $narasi .= "Selain itu, ekspor relatif stabil tanpa perubahan signifikan. ";
+        $narasi .= "Ekspor relatif stagnan tanpa perubahan signifikan. ";
     }
 
-    // ================= INSIGHT POIN =================
+    // ================= INSIGHT POINTS (UPGRADE) =================
     $points = [
-        "Total ekspor: Rp " . number_format($totalEkspor),
-        "Total impor: Rp " . number_format($totalImpor),
+        "Total perdagangan: Rp " . number_format($totalPerdagangan),
+        "Kontribusi ekspor: " . round($kontribusiEkspor, 2) . "%",
+        "Kontribusi impor: " . round($kontribusiImpor, 2) . "%",
+        "Trade balance ratio: " . round($ratio, 2),
         "Selisih perdagangan: Rp " . number_format($selisih),
-        "Komoditas ekspor tertinggi: " . ($eksporTertinggi->komoditas ?? '-'),
-        "Komoditas impor tertinggi: " . ($imporTertinggi->komoditas ?? '-'),
-        "Pertumbuhan ekspor: " . round($growth, 2) . "%",
-        "Status: " . $status
+        "Komoditas ekspor dominan: " . $eksporTop,
+        "Komoditas impor dominan: " . $imporTop,
+        "Status ekonomi: " . $status,
+        "Dominasi perdagangan: " . $dominasi
     ];
 
     return [
         'ekspor_tertinggi' => $eksporTertinggi,
         'impor_tertinggi' => $imporTertinggi,
+
         'total_ekspor' => $totalEkspor,
         'total_impor' => $totalImpor,
         'selisih' => $selisih,
+
         'growth' => $growth,
         'status' => $status,
+
+        // 🔥 BI METRICS BARU
+        'ratio' => $ratio,
+        'dominasi' => $dominasi,
+        'kontribusi_ekspor' => $kontribusiEkspor,
+        'kontribusi_impor' => $kontribusiImpor,
+
         'narasi' => $narasi,
         'points' => $points
     ];
