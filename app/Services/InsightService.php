@@ -95,8 +95,6 @@ $points = [
 
     "Kontribusi impor terhadap total perdagangan: " . round($kontribusiImpor, 2) . "%",
 
-    "Trade balance ratio: " . round($ratio, 2),
-
     "Selisih perdagangan (ekspor - impor): Rp " . number_format($selisih),
 
     "Komoditas ekspor dominan: " . $eksporTop,

@@ -217,20 +217,40 @@
             </small>
         </div>
 
-        {{-- GRAFIK EKSPOR IMPOR --}}
-        <div class="card glass-card chart-card shadow border-0 rounded-4 p-4 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h4 class="mb-1 fw-bold text-dark">📊 Grafik Ekspor-Impor & Prediksi ARIMA</h4>
-                    <p class="text-muted mb-0 small">Menampilkan data historis ekspor dan impor (garis solid), 
-                    serta hasil prediksi menggunakan metode <strong>ARIMA</strong> (garis putus-putus) untuk memperkirakan tren pada periode berikutnya.</p>
-                </div>
-            </div>
-            <canvas id="chartEksporImpor" style="max-height: 400px;"></canvas>
+{{-- GRAFIK EKSPOR IMPOR --}}
+<div id="card-ekspor-impor" class="card glass-card chart-card shadow border-0 rounded-4 p-4 mb-4">
+
+    <div class="d-flex justify-content-between align-items-start mb-4">
+
+        <!-- KIRI (JUDUL + DESKRIPSI) -->
+        <div>
+            <h4 class="mb-1 fw-bold text-dark">
+                📊 Grafik Ekspor-Impor & Prediksi ARIMA
+            </h4>
+            <p class="text-muted mb-0 small">
+                Menampilkan data historis ekspor dan impor (garis solid), 
+                serta hasil prediksi menggunakan metode <strong>ARIMA</strong> 
+                (garis putus-putus) untuk memperkirakan tren pada periode berikutnya.
+            </p>
         </div>
 
+<div class="d-flex gap-2">
+<button onclick="exportChartPNG('chartEksporImpor')" 
+    class="btn btn-sm btn-primary">
+    📷 PNG
+</button>
+<button onclick="exportChartPDF('chartEksporImpor', 'Grafik Ekspor Impor')" 
+    class="btn btn-sm btn-danger">
+    📄 PDF 
+</button>
+</div>
+    </div>
+    <canvas id="chartEksporImpor" style="max-height: 400px;"></canvas>
+
+    </div>
+
     {{-- GRAFIK NERACA PERDAGANGAN --}}
-        <div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+        <div id="card-neraca" class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
         <div class="mb-4">
         <h4 class="fw-bold text-dark mb-1">⚖️ Analisis Neraca Perdagangan</h4>
         <p class="text-muted small mb-0">
@@ -290,7 +310,7 @@
 </div>
 
     {{-- GRAFIK TOP KOMODITAS --}}
-    <div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+    <div id="card-komoditas" class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
     <h5 class="fw-bold text-dark mb-3">📦 Kontribusi Komoditas Ekspor vs Impor</h5>
 
     <p class="text-muted small mb-4">
@@ -327,7 +347,7 @@
 {{-- TABEL DATA --}}
 <div class="container mt-4" style="max-width: 1150px;">
 
-    <div class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+    <div id="card-tabel" class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
 
     <h5 class="fw-bold text-dark mb-3">
         📋 Data Ekspor-Impor Bulanan
@@ -396,7 +416,7 @@
 </div>
 
 <!-- INSIGHT ANALISIS -->
-<div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white">
+<div id="card-insight" class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white">
 
     <h5 class="fw-bold text-dark mb-2">
         📊 Insight Analisis Otomatis
@@ -486,7 +506,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <script>
     const labels = @json($labels);
     const ekspor = @json($dataEkspor);
@@ -766,6 +788,58 @@ new Chart(document.getElementById('sparkImpor'), {
         }
     }
 });
+
+// export png
+function exportChartPNG(chartId) {
+    const chart = Chart.getChart(chartId);
+    const url = chart.toBase64Image();
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = chartId + '.png';
+    link.click();
+}
+
+// export pdf
+async function exportChartPDF(chartId, title) {
+    const { jsPDF } = window.jspdf;
+
+    const chart = Chart.getChart(chartId);
+    const imgData = chart.toBase64Image();
+
+    const pdf = new jsPDF('landscape');
+
+    // Judul
+    pdf.setFontSize(16);
+    pdf.text(title, 14, 15);
+
+    // Grafik
+    pdf.addImage(imgData, 'PNG', 15, 25, 250, 120);
+
+    pdf.save(chartId + '.pdf');
+}
+
+// export csv
+function exportCSV() {
+    let csv = [];
+    let rows = document.querySelectorAll("#tabelData tr");
+
+    for (let row of rows) {
+        let cols = row.querySelectorAll("td, th");
+        let data = [];
+
+        cols.forEach(col => data.push(col.innerText));
+        csv.push(data.join(","));
+    }
+
+    let blob = new Blob([csv.join("\n")], { type: "text/csv" });
+    let url = window.URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "tabel-ekspor-impor.csv";
+    a.click();
+}
 
 </script>
 </section>
