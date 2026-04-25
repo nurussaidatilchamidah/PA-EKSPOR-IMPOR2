@@ -144,7 +144,49 @@
     display: none !important;
 }
 
+.btn-export {
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 10px;
+    font-weight: 500;
+    border: none;
+    backdrop-filter: blur(6px);
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* PNG */
+.btn-png {
+    background: linear-gradient(135deg, #4A6FA5, #166088);
+    color: white;
+}
+
+/* PDF */
+.btn-pdf {
+    background: linear-gradient(135deg, #dc3545, #a71d2a);
+    color: white;
+}
+
+.btn-csv {
+    background: linear-gradient(135deg, #198754, #157347);
+    color: #fff;
+    border: none;
+}
+
+.btn-csv:hover {
+    background: linear-gradient(135deg, #157347, #146c43);
+    color: #fff;
+}
+
+/* HOVER */
+.btn-export:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+    opacity: 0.95;
+}
+
 </style>
+
 </head>
 <body>
 
@@ -222,7 +264,6 @@
 
     <div class="d-flex justify-content-between align-items-start mb-4">
 
-        <!-- KIRI (JUDUL + DESKRIPSI) -->
         <div>
             <h4 class="mb-1 fw-bold text-dark">
                 📊 Grafik Ekspor-Impor & Prediksi ARIMA
@@ -234,16 +275,18 @@
             </p>
         </div>
 
-<div class="d-flex gap-2">
-<button onclick="exportChartPNG('chartEksporImpor')" 
-    class="btn btn-sm btn-primary">
-    📷 PNG
-</button>
-<button onclick="exportChartPDF('chartEksporImpor', 'Grafik Ekspor Impor')" 
-    class="btn btn-sm btn-danger">
-    📄 PDF 
-</button>
-</div>
+        <div class="d-flex gap-2">
+            <button onclick="exportChartPNG('chartEksporImpor')" 
+                class="btn btn-export btn-png">
+                📷 PNG
+            </button>
+
+            <button onclick="exportChartPDF('chartEksporImpor')" 
+                class="btn btn-export btn-pdf">
+                📄 PDF
+            </button>
+        </div>
+
     </div>
     <canvas id="chartEksporImpor" style="max-height: 400px;"></canvas>
 
@@ -251,11 +294,31 @@
 
     {{-- GRAFIK NERACA PERDAGANGAN --}}
         <div id="card-neraca" class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
-        <div class="mb-4">
-        <h4 class="fw-bold text-dark mb-1">⚖️ Analisis Neraca Perdagangan</h4>
+    <div class="d-flex justify-content-between align-items-start mb-4">
+
+    <!-- KIRI -->
+    <div>
+        <h4 class="fw-bold text-dark mb-1">
+            ⚖️ Analisis Neraca Perdagangan
+        </h4>
         <p class="text-muted small mb-0">
             Perbandingan antara nilai ekspor dan impor untuk menentukan kondisi surplus atau defisit
         </p>
+    </div>
+
+    <!-- KANAN -->
+    <div class="d-flex gap-2">
+        <button onclick="exportChartPNG('chartNeraca')" 
+            class="btn btn-export btn-png">
+            📷 PNG
+        </button>
+
+        <button onclick="exportChartPDF('chartNeraca')" 
+            class="btn btn-export btn-pdf">
+            📄 PDF
+        </button>
+    </div>
+
     </div>
 
     <div class="mb-4">
@@ -310,13 +373,33 @@
 </div>
 
     {{-- GRAFIK TOP KOMODITAS --}}
-    <div id="card-komoditas" class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
-    <h5 class="fw-bold text-dark mb-3">📦 Kontribusi Komoditas Ekspor vs Impor</h5>
+   <div id="card-komoditas" class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
 
-    <p class="text-muted small mb-4">
-        Diagram menunjukkan 10 komoditas utama yang paling berkontribusi terhadap nilai ekspor dan impor.
-    </p>
+        <!-- KIRI -->
+        <div>
+            <h5 class="fw-bold text-dark mb-1">
+                📦 Kontribusi Komoditas Ekspor vs Impor
+            </h5>
+            <p class="text-muted small mb-0">
+                Diagram menunjukkan 10 komoditas utama yang paling berkontribusi terhadap nilai ekspor dan impor.
+            </p>
+        </div>
 
+    <div class="d-flex gap-2">
+    <button onclick="exportKomoditasPNG()" 
+        class="btn btn-export btn-png">
+        📷 PNG
+    </button>
+
+    <button onclick="exportKomoditasPDF()" 
+        class="btn btn-export btn-pdf">
+        📄 PDF
+    </button>
+    </div>
+
+    </div>
+    
     <div class="row">
         <!-- EKSPOR -->
         <div class="col-md-6 text-center">
@@ -347,11 +430,36 @@
 {{-- TABEL DATA --}}
 <div class="container mt-4" style="max-width: 1150px;">
 
-    <div id="card-tabel" class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
+<div id="card-tabel" class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
 
-    <h5 class="fw-bold text-dark mb-3">
-        📋 Data Ekspor-Impor Bulanan
-    </h5>
+    <div class="d-flex justify-content-between align-items-start mb-3">
+
+        <!-- KIRI -->
+        <div>
+            <h5 class="fw-bold text-dark mb-1">
+                📋 Data Ekspor-Impor Bulanan
+            </h5>
+        </div>
+
+        <!-- KANAN -->
+        <div class="d-flex gap-2">
+            <button onclick="exportTablePNG()" 
+                class="btn btn-export btn-png">
+                📷 PNG
+            </button>
+
+            <button onclick="exportTablePDF()" 
+                class="btn btn-export btn-pdf">
+                📄 PDF
+            </button>
+
+            <button onclick="exportCSV()" 
+            class="btn btn-export btn-csv">
+            📊 CSV
+            </button>
+        </div>
+
+    </div>
 
     <!-- FILTER + SEARCH -->
     <div class="row g-2 mb-3">
@@ -839,6 +947,107 @@ function exportCSV() {
     a.href = url;
     a.download = "tabel-ekspor-impor.csv";
     a.click();
+}
+
+// ===== KOMODITAS EKSPOR-IMPOR (GABUNG) =====
+async function generateKomoditasImage() {
+
+    const chartEkspor = Chart.getChart('chartEksporKomoditas');
+    const chartImpor = Chart.getChart('chartImporKomoditas');
+
+    const imgEkspor = new Image();
+    imgEkspor.src = chartEkspor.toBase64Image();
+
+    const imgImpor = new Image();
+    imgImpor.src = chartImpor.toBase64Image();
+
+    await Promise.all([
+        new Promise(res => imgEkspor.onload = res),
+        new Promise(res => imgImpor.onload = res)
+    ]);
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const width = 900;
+    const height = 450;
+
+    canvas.width = width * 2;
+    canvas.height = height + 80;
+
+    // background putih
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // judul
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 18px Arial";
+    ctx.fillText("Kontribusi Komoditas Ekspor vs Impor", 20, 30);
+
+    // gambar
+    ctx.drawImage(imgEkspor, 0, 60, width, height);
+    ctx.drawImage(imgImpor, width, 60, width, height);
+
+    return canvas.toDataURL("image/png", 1.0);
+}
+
+
+// ===== PNG =====
+async function exportKomoditasPNG() {
+    const img = await generateKomoditasImage();
+
+    const link = document.createElement('a');
+    link.href = img;
+    link.download = "komoditas-ekspor-impor.png";
+    link.click();
+}
+
+
+// ===== PDF =====
+async function exportKomoditasPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('landscape');
+
+    const img = await generateKomoditasImage();
+
+    pdf.addImage(img, 'PNG', 10, 10, 270, 130);
+    pdf.save("komoditas-ekspor-impor.pdf");
+}
+
+// ===== TABEL png =====
+function exportTablePNG() {
+    const table = document.getElementById('card-tabel');
+
+    html2canvas(table, {
+        scale: 2, // biar HD
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'tabel-ekspor-impor.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+}
+
+// ===== TABEL PDF =====
+async function exportTablePDF() {
+    const { jsPDF } = window.jspdf;
+
+    const element = document.getElementById('card-tabel');
+
+    const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: "#ffffff"
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF('landscape');
+
+    pdf.text("Data Ekspor-Impor Bulanan", 10, 10);
+    pdf.addImage(imgData, 'PNG', 10, 20, 270, 120);
+
+    pdf.save("tabel-ekspor-impor.pdf");
 }
 
 </script>
