@@ -901,29 +901,88 @@ new Chart(document.getElementById('sparkImpor'), {
 // export png
 function exportChartPNG(chartId) {
     const chart = Chart.getChart(chartId);
-    const url = chart.toBase64Image();
+
+    const canvas = document.createElement('canvas');
+    const scale = 3;
+
+    canvas.width = chart.width * scale;
+    canvas.height = chart.height * scale;
+
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.scale(scale, scale);
+    ctx.drawImage(chart.canvas, 0, 0);
 
     const link = document.createElement('a');
-    link.href = url;
+    link.href = canvas.toDataURL("image/png", 1.0);
     link.download = chartId + '.png';
     link.click();
 }
 
 // export pdf
-async function exportChartPDF(chartId, title) {
+async function exportChartPDF(chartId, title = "Grafik") {
     const { jsPDF } = window.jspdf;
 
-    const chart = Chart.getChart(chartId);
-    const imgData = chart.toBase64Image();
+    const originalChart = Chart.getChart(chartId);
+    if (!originalChart) {
+        alert("Chart tidak ditemukan!");
+        return;
+    }
 
-    const pdf = new jsPDF('landscape');
+    // ambil config chart asli
+    const config = originalChart.config._config;
 
-    // Judul
-    pdf.setFontSize(16);
-    pdf.text(title, 14, 15);
+    // buat canvas baru (HD)
+    const canvas = document.createElement('canvas');
+    canvas.width = 2000;
+    canvas.height = 800;
 
-    // Grafik
-    pdf.addImage(imgData, 'PNG', 15, 25, 250, 120);
+    const ctx = canvas.getContext('2d');
+
+    // background putih
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // render chart baru (HD)
+    new Chart(ctx, {
+        ...config,
+        options: {
+            ...config.options,
+            responsive: false,
+            animation: false,
+            plugins: {
+                ...config.options.plugins,
+                legend: {
+                    labels: {
+                        color: "#000"
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: "#000" }
+                },
+                y: {
+                    ticks: { color: "#000" }
+                }
+            }
+        }
+    });
+
+    // tunggu render
+    await new Promise(res => setTimeout(res, 500));
+
+    const imgData = canvas.toDataURL("image/png", 1.0);
+
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
+
+    pdf.setFontSize(14);
+    pdf.text(title, 10, 10);
+
+    pdf.addImage(imgData, 'PNG', 10, 20, 270, 130);
 
     pdf.save(chartId + '.pdf');
 }
