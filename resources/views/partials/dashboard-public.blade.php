@@ -281,10 +281,10 @@
                 📷 PNG
             </button>
 
-            <button onclick="exportChartPDF('chartEksporImpor')" 
-                class="btn btn-export btn-pdf">
-                📄 PDF
-            </button>
+        <button onclick="exportChartPDF('chartEksporImpor', 'Grafik Ekspor Impor')" 
+            class="btn btn-export btn-pdf">
+            📄 PDF
+        </button>
         </div>
 
     </div>
@@ -313,7 +313,7 @@
             📷 PNG
         </button>
 
-        <button onclick="exportChartPDF('chartNeraca')" 
+        <button onclick="exportChartPDF('chartNeraca', 'Grafik Neraca Perdagangan')" 
             class="btn btn-export btn-pdf">
             📄 PDF
         </button>
@@ -616,6 +616,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <script>
     const labels = @json($labels);
@@ -1036,16 +1037,24 @@ async function exportTablePDF() {
     const element = document.getElementById('card-tabel');
 
     const canvas = await html2canvas(element, {
-        scale: 2,
-        backgroundColor: "#ffffff"
+        scale: 3, // lebih HD
+        useCORS: true
     });
 
     const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF('landscape');
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
 
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgWidth = pageWidth - 20;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+
+    pdf.setFontSize(14);
     pdf.text("Data Ekspor-Impor Bulanan", 10, 10);
-    pdf.addImage(imgData, 'PNG', 10, 20, 270, 120);
+
+    pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
 
     pdf.save("tabel-ekspor-impor.pdf");
 }
