@@ -112,6 +112,37 @@ class PrediksiController extends Controller
             $dataPrediksiImpor[] = $v;
         }
 
+       // ================= MAPE EKSPOR =================
+        $totalErrorEkspor = 0;
+        $countEkspor = 0;
+
+        foreach ($data_ekspor as $i => $actual) {
+            $predicted = $resultEkspor['prediksi'][$i] ?? null;
+
+            if ($predicted !== null && $actual != 0) {
+                $totalErrorEkspor += abs(($actual - $predicted) / $actual);
+                $countEkspor++;
+            }
+        }
+
+        $mapeEkspor = $countEkspor > 0 ? ($totalErrorEkspor / $countEkspor) * 100 : 0;
+
+
+        // ================= MAPE IMPOR =================
+        $totalErrorImpor = 0;
+        $countImpor = 0;
+
+        foreach ($data_impor as $i => $actual) {
+            $predicted = $resultImpor['prediksi'][$i] ?? null;
+
+            if ($predicted !== null && $actual != 0) {
+                $totalErrorImpor += abs(($actual - $predicted) / $actual);
+                $countImpor++;
+            }
+        }
+
+        $mapeImpor = $countImpor > 0 ? ($totalErrorImpor / $countImpor) * 100 : 0;
+
         // ================= VIEW =================
         return view('admin.prediksi.arima', [
             'prediksiEkspor' => $resultEkspor['prediksi'],
@@ -122,6 +153,8 @@ class PrediksiController extends Controller
             'prediksiImpor' => $resultImpor['prediksi'],
             'maeImpor' => $resultImpor['mae'],
             'rmseImpor' => $resultImpor['rmse'],
+            'mapeEkspor' => $mapeEkspor,
+            'mapeImpor' => $mapeImpor,
 
             'labels' => $labels,
             'dataEkspor' => $dataEksporChart,
@@ -200,6 +233,33 @@ public function evaluasi()
         ];
     }
 
+            // ================= MAPE EKSPOR =================
+        $totalErrorEkspor = 0;
+        $countEkspor = 0;
+
+        foreach ($evaluasiEkspor as $row) {
+            if ($row['aktual'] != 0) {
+                $totalErrorEkspor += abs(($row['aktual'] - $row['prediksi']) / $row['aktual']);
+                $countEkspor++;
+            }
+        }
+
+        $mapeEkspor = $countEkspor > 0 ? ($totalErrorEkspor / $countEkspor) * 100 : 0;
+
+
+        // ================= MAPE IMPOR =================
+        $totalErrorImpor = 0;
+        $countImpor = 0;
+
+        foreach ($evaluasiImpor as $row) {
+            if ($row['aktual'] != 0) {
+                $totalErrorImpor += abs(($row['aktual'] - $row['prediksi']) / $row['aktual']);
+                $countImpor++;
+            }
+        }
+
+        $mapeImpor = $countImpor > 0 ? ($totalErrorImpor / $countImpor) * 100 : 0;
+
     // ================= VIEW =================
     return view('admin.prediksi.evaluasi', [
         'maeEkspor' => $resultEkspor['mae'],
@@ -211,6 +271,8 @@ public function evaluasi()
         // tambahan
         'evaluasiEkspor' => $evaluasiEkspor,
         'evaluasiImpor' => $evaluasiImpor,
+        'mapeEkspor' => $mapeEkspor,
+        'mapeImpor' => $mapeImpor,
     ]);
 }
 }

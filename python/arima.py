@@ -54,10 +54,10 @@ try:
         enforce_invertibility=False
     ).fit()
 
-    forecast_future = model_full.forecast(steps=6).tolist()
+    forecast_future = model_full.forecast(steps=3).tolist()
 
 except:
-    forecast_future = [series.iloc[-1]] * 6
+    forecast_future = [series.iloc[-1]] * 3
 
 # ================= OUTPUT =================
 result = {
