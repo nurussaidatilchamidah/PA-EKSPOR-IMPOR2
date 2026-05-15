@@ -290,8 +290,62 @@
     </div>
     <canvas id="chartEksporImpor" style="max-height: 400px;"></canvas>
 
+    {{-- METRIK (DI DALAM CARD, CLEAN BAWAH) --}}
+    <hr class="my-3">
+
+    <div class="row text-center g-3">
+
+        <div class="col-md-6">
+            <div class="p-3 rounded-3 bg-primary-subtle">
+                <small class="text-muted">MAPE Ekspor</small>
+                <h5 class="fw-bold mb-0">
+                    {{ number_format($mapeEkspor, 2) }}%
+                </h5>
+                <small>
+                    @if($mapeEkspor < 10)
+                        🟢 Sangat Baik
+                    @elseif($mapeEkspor < 20)
+                        🟡 Baik
+                    @elseif($mapeEkspor < 50)
+                        🟠 Cukup
+                    @else
+                        🔴 Kurang
+                    @endif
+                </small>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="p-3 rounded-3 bg-danger-subtle">
+                <small class="text-muted">MAPE Impor</small>
+                <h5 class="fw-bold mb-0">
+                    {{ number_format($mapeImpor, 2) }}%
+                </h5>
+                <small>
+                    @if($mapeImpor < 10)
+                        🟢 Sangat Baik
+                    @elseif($mapeImpor < 20)
+                        🟡 Baik
+                    @elseif($mapeImpor < 50)
+                        🟠 Cukup
+                    @else
+                        🔴 Kurang
+                    @endif
+                </small>
+            </div>
+        </div>
+
     </div>
 
+    {{-- NOTE --}}
+    <div class="text-center mt-3">
+        <small class="text-muted">
+            MAPE = tingkat error prediksi (semakin kecil semakin bagus)
+        </small>
+    </div>
+
+    </div>
+    
     {{-- GRAFIK NERACA PERDAGANGAN --}}
         <div id="card-neraca" class="card glass-card shadow border-0 rounded-4 p-4 mb-4">
     <div class="d-flex justify-content-between align-items-start mb-4">

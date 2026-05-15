@@ -62,11 +62,13 @@ class DashboardPublicController extends Controller
         $labels = $bulan;
         $lastDate = Carbon::parse($data->last()->tanggal);
 
-        foreach ($forecastEkspor as $i => $v) {
+        $forecastCount = max(count($forecastEkspor), count($forecastImpor));
+
+        for ($i = 0; $i < $forecastCount; $i++) {
             $nextDate = $lastDate->copy()->addMonths($i + 1);
             $labels[] = $nextDate->translatedFormat('M Y');
         }
-        // ================= CHART =================
+                // ================= CHART =================
         $dataEksporChart = $data_ekspor;
         $dataImporChart = $data_impor;
 
@@ -91,20 +93,71 @@ class DashboardPublicController extends Controller
         $dataImporChart = array_values($dataImporChart);
 
         // ================= EVALUASI =================
-        $mae = 0;
-        $rmse = 0;
+$mae = 0;
+$rmse = 0;
+$mape = 0;
 
-        if(count($forecastEkspor) > 0){
-            $actual = array_slice($data_ekspor, -count($forecastEkspor));
-            $errors = [];
+$maeImpor = 0;
+$rmseImpor = 0;
+$mapeImpor = 0;
 
-            foreach ($forecastEkspor as $i => $pred) {
-                $errors[] = ($actual[$i] ?? 0) - $pred;
-            }
+// ================= EKSPOR =================
+if (count($forecastEkspor) > 0) {
 
-            $mae = array_sum(array_map(fn($e) => abs($e), $errors)) / count($errors);
-            $rmse = sqrt(array_sum(array_map(fn($e) => pow($e,2), $errors)) / count($errors));
+    $actual = array_slice($data_ekspor, -count($forecastEkspor));
+    $errors = [];
+    $ape = [];
+
+    foreach ($forecastEkspor as $i => $pred) {
+
+        $a = $actual[$i] ?? 0;
+
+        $error = $a - $pred;
+        $errors[] = $error;
+
+        if ($a != 0) {
+            $ape[] = abs($error / $a);
         }
+    }
+
+    if (count($errors) > 0) {
+        $mae = array_sum(array_map(fn($e) => abs($e), $errors)) / count($errors);
+        $rmse = sqrt(array_sum(array_map(fn($e) => pow($e, 2), $errors)) / count($errors));
+    }
+
+    if (count($ape) > 0) {
+        $mape = (array_sum($ape) / count($ape)) * 100;
+    }
+}
+
+// ================= IMPOR =================
+if (count($forecastImpor) > 0) {
+
+    $actualImpor = array_slice($data_impor, -count($forecastImpor));
+    $errors = [];
+    $ape = [];
+
+    foreach ($forecastImpor as $i => $pred) {
+
+        $a = $actualImpor[$i] ?? 0;
+
+        $error = $a - $pred;
+        $errors[] = $error;
+
+        if ($a != 0) {
+            $ape[] = abs($error / $a);
+        }
+    }
+
+    if (count($errors) > 0) {
+        $maeImpor = array_sum(array_map(fn($e) => abs($e), $errors)) / count($errors);
+        $rmseImpor = sqrt(array_sum(array_map(fn($e) => pow($e, 2), $errors)) / count($errors));
+    }
+
+    if (count($ape) > 0) {
+        $mapeImpor = (array_sum($ape) / count($ape)) * 100;
+    }
+}
 
         // ================= INSIGHT =================
         $periodeTertinggi = count($data_ekspor) 
@@ -158,26 +211,40 @@ class DashboardPublicController extends Controller
 
         // ================= VIEW =================
         return view('welcome', [
-            'data' => $data,
-            'labels' => $labels,
-            'dataEkspor' => $dataEksporChart,
-            'dataImpor' => $dataImporChart,
-            'dataPrediksiEkspor' => $dataPrediksiEkspor,
-            'dataPrediksiImpor' => $dataPrediksiImpor,
-            'total_ekspor' => $total_ekspor,
-            'total_impor' => $total_impor,
-            'selisih' => $selisih,
-            'mae' => $mae,
-            'rmse' => $rmse,
-            'periodeTertinggi' => $periodeTertinggi,
-            'periodeImporTertinggi' => $periodeImporTertinggi,
-            'trend' => $trend,
-            'neracaPeriode' => $neracaPeriode,
-            'totalSurplus' => $totalSurplus,
-            'totalDefisit' => $totalDefisit,
-            'topEkspor' => $topEkspor,
-            'topImpor' => $topImpor,
-            'insight' => $insight
-        ]);
+        'data' => $data,
+        'labels' => $labels,
+
+        // CHART
+        'dataEkspor' => $dataEksporChart,
+        'dataImpor' => $dataImporChart,
+        'dataPrediksiEkspor' => $dataPrediksiEkspor,
+        'dataPrediksiImpor' => $dataPrediksiImpor,
+
+        // TOTAL
+        'total_ekspor' => $total_ekspor,
+        'total_impor' => $total_impor,
+        'selisih' => $selisih,
+
+        // EVALUASI EKSPOR
+        'maeEkspor' => $mae,
+        'rmseEkspor' => $rmse,
+        'mapeEkspor' => $mape,
+
+        // EVALUASI IMPOR
+        'maeImpor' => $maeImpor,
+        'rmseImpor' => $rmseImpor,
+        'mapeImpor' => $mapeImpor,
+
+        // INSIGHT & LAINNYA
+        'periodeTertinggi' => $periodeTertinggi,
+        'periodeImporTertinggi' => $periodeImporTertinggi,
+        'trend' => $trend,
+        'neracaPeriode' => $neracaPeriode,
+        'totalSurplus' => $totalSurplus,
+        'totalDefisit' => $totalDefisit,
+        'topEkspor' => $topEkspor,
+        'topImpor' => $topImpor,
+        'insight' => $insight,
+    ]);
     }
 }
