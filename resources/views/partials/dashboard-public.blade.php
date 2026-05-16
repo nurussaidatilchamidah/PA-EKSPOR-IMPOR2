@@ -129,6 +129,11 @@
     padding: 25px;
 }
 
+#tabelData thead th {
+    text-align: center !important;
+    vertical-align: middle;
+}
+
 .dataTables_wrapper .dataTables_info {
     text-align: center;
     margin-top: 10px;
@@ -474,8 +479,8 @@
         </p>
         <p class="small text-muted mb-0">
         Diagram menunjukkan kontribusi komoditas utama (berdasarkan kode HS) terhadap ekspor dan impor. 
-        Warna yang sama menandakan komoditas yang sama, sehingga memudahkan perbandingan. 
-        Semakin besar proporsi, semakin besar perannya dalam perdagangan.       
+        Semakin besar proporsi suatu komoditas, semakin besar kontribusinya dalam aktivitas perdagangan. 
+        Seluruh nilai ditampilkan dalam satuan USD (United States Dollar).      
      </p>
     </div>
 </div>
@@ -491,7 +496,7 @@
         <!-- KIRI -->
         <div>
             <h5 class="fw-bold text-dark mb-1">
-                📋 Data Ekspor-Impor Bulanan
+                📋 Tabel Data Ekspor-Impor Bulanan
             </h5>
         </div>
 
@@ -545,15 +550,17 @@
                 <tr>
                     <th>📅 Periode</th>
                     <th>📤 Ekspor (USD)</th>
-                    <th>⚖️ Berat Ekspor</th>
+                    <th>⚖️ Berat Ekspor (Kg)</th>
                     <th>📥 Impor (USD)</th>
-                    <th>⚖️ Berat Impor</th>
+                    <th>⚖️ Berat Impor (Kg)</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($data as $d)
                 <tr>
-                    <td>{{ \Carbon\Carbon::parse($d->tanggal)->translatedFormat('F Y') }}</td>
+                    <td data-order="{{ $d->tanggal }}">
+                        {{ \Carbon\Carbon::parse($d->tanggal)->translatedFormat('F Y') }}
+                    </td>                    
                     <td class="text-primary fw-semibold">
                         $ {{ number_format($d->nilai_ekspor, 0, ',', '.') }}
                     </td>
@@ -885,10 +892,12 @@ backgroundColor: komoditasImpor.map(i => colorMap[i.nama_barang])
 $(document).ready(function () {
 
     let table = $('#tabelData').DataTable({
-        paging: true,
+        paging: false,
         info: false,
         lengthChange: false,
-        searching: true // WAJIB TRUE biar bisa dipakai custom search
+        searching: true, // WAJIB TRUE biar bisa dipakai custom search
+        ordering: true,
+        responsive: true
     });
 
     // SEARCH CUSTOM

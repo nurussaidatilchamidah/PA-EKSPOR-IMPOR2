@@ -36,6 +36,7 @@ class DashboardPublicController extends Controller
 
         // EKSPOR
         $processEkspor = new Process([$python, $script, json_encode($data_ekspor)]);
+        $processEkspor->setTimeout(300);
         $processEkspor->run();
 
         if (!$processEkspor->isSuccessful()) {
@@ -46,6 +47,7 @@ class DashboardPublicController extends Controller
 
         // IMPOR
         $processImpor = new Process([$python, $script, json_encode($data_impor)]);
+        $processImpor->setTimeout(300);
         $processImpor->run();
 
         if (!$processImpor->isSuccessful()) {

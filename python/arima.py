@@ -7,64 +7,53 @@ import numpy as np
 import sys
 import json
 
+# ================= INPUT =================
 data = json.loads(sys.argv[1])
+
 series = pd.Series(data).astype(float)
 
 # ================= MODEL =================
 order = (2,1,2)
 
-# ================= WALK FORWARD =================
-history = list(series[:3])
-predictions = []
-
-for t in range(3, len(series)):
-    try:
-        model = ARIMA(
-            history,
-            order=order,
-            enforce_stationarity=False,
-            enforce_invertibility=False
-        ).fit()
-
-        yhat = model.forecast()[0]
-
-    except:
-        yhat = history[-1]
-
-    predictions.append(yhat)
-    history.append(series[t])
-
-# ================= EVALUASI =================
-actual = series[3:].values
-pred = np.array(predictions)
-
-min_len = min(len(actual), len(pred))
-actual = actual[:min_len]
-pred = pred[:min_len]
-
-mae = np.mean(np.abs(actual - pred))
-rmse = np.sqrt(np.mean((actual - pred) ** 2))
-
-# ================= PREDIKSI MASA DEPAN =================
 try:
-    model_full = ARIMA(
+
+    model = ARIMA(
         series,
         order=order,
         enforce_stationarity=False,
         enforce_invertibility=False
     ).fit()
 
-    forecast_future = model_full.forecast(steps=3).tolist()
+    # forecast masa depan
+    forecast_future = model.forecast(steps=3).tolist()
+
+    # fitted values
+    fitted = model.fittedvalues
+
+    min_len = min(len(series), len(fitted))
+
+    actual = series[-min_len:]
+    pred = fitted[-min_len:]
+
+    mae = np.mean(np.abs(actual - pred))
+    rmse = np.sqrt(np.mean((actual - pred) ** 2))
+
+    mape = np.mean(np.abs((actual - pred) / actual)) * 100
 
 except:
+
     forecast_future = [series.iloc[-1]] * 3
+
+    mae = 0
+    rmse = 0
+    mape = 0
 
 # ================= OUTPUT =================
 result = {
     "model": "ARIMA(2,1,2)",
     "mae": float(mae),
     "rmse": float(rmse),
-    "prediksi_test": predictions,
+    "mape": float(mape),
     "prediksi": forecast_future
 }
 
