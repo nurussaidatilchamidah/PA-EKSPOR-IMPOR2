@@ -574,14 +574,6 @@
             </tbody>
         </table>
     </div>
-
-    <!-- INTERPRETASI -->
-    <div class="bg-light rounded-3 p-3 mt-3">
-        <p class="small text-muted mb-0">
-            Tabel ini menampilkan data ekspor dan impor bulanan secara interaktif 
-            dengan fitur pencarian dan filter periode.
-        </p>
-    </div>
 </div>
 
 <!-- INSIGHT ANALISIS -->
@@ -609,7 +601,7 @@
             <div class="p-3 border rounded-3 h-100">
                 <small class="text-muted">📦 Total Perdagangan</small>
                 <div class="fw-bold text-dark">
-                    Rp {{ number_format($insight['total_ekspor'] + $insight['total_impor']) }}
+                    $ {{ number_format($insight['total_ekspor'] + $insight['total_impor']) }}
                 </div>
                 <small class="text-muted">
                     Gabungan total ekspor + impor
@@ -621,7 +613,7 @@
             <div class="p-3 border rounded-3 h-100">
                 <small class="text-muted">⚖️ Selisih Perdagangan</small>
                 <div class="fw-bold text-dark">
-                    Rp {{ number_format($insight['selisih']) }}
+                    $ {{ number_format($insight['selisih']) }}
                 </div>
                 <small class="text-muted">
                     Jika positif = surplus, jika negatif = defisit
@@ -633,7 +625,7 @@
             <div class="p-3 border rounded-3 h-100">
                 <small class="text-muted">📈 Pertumbuhan Ekspor</small>
                 <div class="fw-bold text-dark">
-                    {{ round($insight['growth'], 2) }}%
+                    $ {{ round($insight['growth'], 2) }}%
                 </div>
                 <small class="text-muted">
                     Perubahan dari awal ke akhir periode

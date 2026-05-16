@@ -74,7 +74,7 @@ $persenLebih = ($ratio - 1) * 100;
     $narasi .= "Ekspor menyumbang " . round($kontribusiEkspor, 2) . "% dari total perdagangan, ";
     $narasi .= "sedangkan impor menyumbang " . round($kontribusiImpor, 2) . "%. ";
 
-    $narasi .= "Selisih perdagangan tercatat sebesar Rp " . number_format(abs($selisih)) . ". ";
+    $narasi .= "Selisih perdagangan tercatat sebesar $ " . number_format(abs($selisih)) . ". ";
 
     if ($growth > 5) {
         $narasi .= "Pertumbuhan ekspor tinggi sebesar " . round($growth, 2) . "% menunjukkan ekspansi kuat sektor perdagangan. ";
@@ -89,13 +89,13 @@ $persenLebih = ($ratio - 1) * 100;
 // ================= INSIGHT POINTS (VERSI EDUKATIF) =================
 
 $points = [
-    "Total perdagangan (gabungan ekspor + impor): Rp " . number_format($totalPerdagangan),
+    "Total perdagangan (gabungan ekspor + impor): $ " . number_format($totalPerdagangan),
 
     "Kontribusi ekspor terhadap total perdagangan: " . round($kontribusiEkspor, 2) . "%",
 
     "Kontribusi impor terhadap total perdagangan: " . round($kontribusiImpor, 2) . "%",
 
-    "Selisih perdagangan (ekspor - impor): Rp " . number_format($selisih),
+    "Selisih perdagangan (ekspor - impor): $ " . number_format($selisih),
 
     "Komoditas ekspor dominan: " . $eksporTop,
 
