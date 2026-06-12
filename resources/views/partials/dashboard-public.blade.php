@@ -275,7 +275,7 @@
             </h4>
             <p class="text-muted mb-0 small">
                 Menampilkan data historis ekspor dan impor (garis solid), 
-                serta hasil prediksi menggunakan metode <strong>ARIMA</strong> 
+                serta hasil prediksi menggunakan metode ARIMA 
                 (garis putus-putus) untuk memperkirakan tren pada periode berikutnya.
             </p>
         </div>
@@ -345,7 +345,7 @@
     {{-- NOTE --}}
     <div class="text-center mt-3">
         <small class="text-muted">
-            Semakin kecil nilai MAPE, semakin akurat hasil prediksi ARIMA.
+            Semakin kecil nilai MAPE (Mean Absolute Percentage Error), semakin akurat hasil prediksi ARIMA.
         </small>
     </div>
 
@@ -424,9 +424,8 @@
             <strong>📌 Interpretasi:</strong>
         </p>
         <p class="small text-muted mb-0">
-            Neraca perdagangan menunjukkan selisih antara ekspor dan impor. 
-            <strong>Surplus</strong> terjadi saat ekspor lebih besar dari impor, 
-            sedangkan <strong>defisit</strong> terjadi saat impor lebih besar dari ekspor.
+            Neraca perdagangan menunjukkan selisih antara ekspor dan impor. Surplus terjadi saat ekspor 
+            lebih besar dari impor, sedangkan Defisitterjadi saat impor lebih besar dari ekspor.
         </p>
     </div>
 </div>
@@ -478,7 +477,7 @@
             <strong>📌 Interpretasi:</strong>
         </p>
         <p class="small text-muted mb-0">
-        Diagram menunjukkan kontribusi komoditas utama (berdasarkan kode HS) terhadap ekspor dan impor. 
+        Diagram menunjukkan kontribusi komoditas utama berdasarkan kode HS (Harmonized System) terhadap ekspor dan impor. 
         Semakin besar proporsi suatu komoditas, semakin besar kontribusinya dalam aktivitas perdagangan. 
         Seluruh nilai ditampilkan dalam satuan USD (United States Dollar).      
      </p>
@@ -738,7 +737,7 @@
     </div>
 </div>
     <div class="p-3 bg-light rounded-3 mb-3 mt-4">
-        <p class="text-dark small mb-0" style="line-height:1.8;">
+    <p class="text-dark mb-0" style="font-size: 14px; line-height:1.8;">
 💡 Berdasarkan hasil analisis, perdagangan Indonesia berada dalam kondisi
 {{ $insight['status'] }} dengan dominasi ekspor sebesar
 {{ round($insight['kontribusi_ekspor'],2) }}% dari total perdagangan.

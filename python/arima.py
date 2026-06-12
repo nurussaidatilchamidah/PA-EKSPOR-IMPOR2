@@ -12,32 +12,27 @@ data = json.loads(sys.argv[1])
 
 series = pd.Series(data).astype(float)
 
+series_log = np.log(series)
+
 # ================= MODEL =================
 order = (2,1,2)
 
 try:
 
     model = ARIMA(
-        series,
-        order=order,
-        enforce_stationarity=False,
-        enforce_invertibility=False
+    series_log,
+    order=order,
+    enforce_stationarity=False,
+    enforce_invertibility=False
     ).fit()
 
     # forecast masa depan
-    forecast_future = model.forecast(steps=3).tolist()
-
-    # batasi prediksi yang tidak masuk akal
-    last_value = float(series.iloc[-1])
-
-    forecast_future = [
-        float(v) if abs(v) < (last_value * 2)
-        else last_value
-        for v in forecast_future
-    ]
+    forecast_future = np.exp(
+    model.forecast(steps=3)
+    ).tolist()
 
     # fitted values
-    fitted = model.fittedvalues
+    fitted = np.exp(model.fittedvalues)
 
     min_len = min(len(series), len(fitted))
 
