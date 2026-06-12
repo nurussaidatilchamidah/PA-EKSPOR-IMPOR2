@@ -1046,25 +1046,29 @@ new Chart(document.getElementById('sparkImpor'), {
 // export png
 function exportChartPNG(chartId) {
     const chart = Chart.getChart(chartId);
+    if (!chart) return alert("Chart tidak ditemukan!");
 
-    const canvas = document.createElement('canvas');
-    const scale = 3;
+    // Simpan rasio asli
+    const originalRatio = chart.options.devicePixelRatio || window.devicePixelRatio;
 
-    canvas.width = chart.width * scale;
-    canvas.height = chart.height * scale;
+    // Paksa Chart.js merender ulang dengan resolusi 3x lebih tajam
+    chart.options.devicePixelRatio = 3;
+    
+    // Update chart tanpa animasi agar instan
+    chart.update('none');
 
-    const ctx = canvas.getContext('2d');
+    // Ambil gambar kualitas tinggi langsung dari method bawaan Chart.js
+    const imgData = chart.toBase64Image('image/png', 1.0);
 
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.scale(scale, scale);
-    ctx.drawImage(chart.canvas, 0, 0);
-
+    // Proses Download
     const link = document.createElement('a');
-    link.href = canvas.toDataURL("image/png", 1.0);
+    link.href = imgData;
     link.download = chartId + '.png';
     link.click();
+
+    // Kembalikan chart ke resolusi normal
+    chart.options.devicePixelRatio = originalRatio;
+    chart.update('none');
 }
 
 // export pdf
@@ -1072,130 +1076,149 @@ async function exportChartPDF(chartId, title = "Grafik") {
     const { jsPDF } = window.jspdf;
 
     const originalChart = Chart.getChart(chartId);
-    if (!originalChart) {
-        alert("Chart tidak ditemukan!");
-        return;
-    }
+    if (!originalChart) return alert("Chart tidak ditemukan!");
 
-    // ambil config chart asli
-    const config = originalChart.config._config;
+    const config = originalChart.config;
 
-    // buat canvas baru (HD)
+    // Buat canvas sementara (ukurannya proporsional saja)
     const canvas = document.createElement('canvas');
-    canvas.width = 2000;
-    canvas.height = 800;
-
+    canvas.width = 1000;
+    canvas.height = 400;
     const ctx = canvas.getContext('2d');
-
-    // background putih
+    
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // render chart baru (HD)
-    new Chart(ctx, {
-        ...config,
+    // Render chart baru (HD)
+    const tempChart = new Chart(ctx, {
+        type: config.type,
+        data: config.data,
         options: {
             ...config.options,
+            devicePixelRatio: 3, // KUNCI UTAMA AGAR PDF TAJAM
             responsive: false,
-            animation: false,
+            animation: false, // Matikan animasi
             plugins: {
-                ...config.options.plugins,
-                legend: {
-                    labels: {
-                        color: "#000"
-                    }
-                }
+                ...config.options?.plugins,
+                legend: { labels: { color: "#000" } }
             },
             scales: {
-                x: {
-                    ticks: { color: "#000" }
-                },
-                y: {
-                    ticks: { color: "#000" }
-                }
+                x: { ticks: { color: "#000" } },
+                y: { ticks: { color: "#000" } }
             }
         }
     });
 
-    // tunggu render
-    await new Promise(res => setTimeout(res, 500));
+    // Tunggu sebentar agar render Chart.js sempurna
+    await new Promise(res => setTimeout(res, 300));
 
-    const imgData = canvas.toDataURL("image/png", 1.0);
+    // Ambil base64
+    const imgData = tempChart.toBase64Image("image/png", 1.0);
 
+    // Buat PDF
     const pdf = new jsPDF('landscape', 'mm', 'a4');
-
     pdf.setFontSize(14);
     pdf.text(title, 10, 10);
-
     pdf.addImage(imgData, 'PNG', 10, 20, 270, 130);
-
     pdf.save(chartId + '.pdf');
-}
 
-// export csv
-function exportCSV() {
-    let csv = [];
-    let rows = document.querySelectorAll("#tabelData tr");
-
-    for (let row of rows) {
-        let cols = row.querySelectorAll("td, th");
-        let data = [];
-
-        cols.forEach(col => data.push(col.innerText));
-        csv.push(data.join(","));
-    }
-
-    let blob = new Blob([csv.join("\n")], { type: "text/csv" });
-    let url = window.URL.createObjectURL(blob);
-
-    let a = document.createElement("a");
-    a.href = url;
-    a.download = "tabel-ekspor-impor.csv";
-    a.click();
+    // PENTING: Hapus chart sementara agar memori browser tidak bocor
+    tempChart.destroy();
 }
 
 // ===== KOMODITAS EKSPOR-IMPOR (GABUNG) =====
 async function generateKomoditasImage() {
-
     const chartEkspor = Chart.getChart('chartEksporKomoditas');
     const chartImpor = Chart.getChart('chartImporKomoditas');
 
+    if (!chartEkspor || !chartImpor) {
+        alert("Salah satu atau kedua chart tidak ditemukan!");
+        return null;
+    }
+
+    // FUNGSI BANTU: Render ulang chart ke canvas sementara beresolusi tinggi (HD)
+    async function getHDChartBase64(originalChart) {
+        const config = originalChart.config;
+        
+        const tempCanvas = document.createElement('canvas');
+        // Buat ukuran dasar yang besar (misal: 1200x600) agar vektor/teks dirender tajam
+        tempCanvas.width = 1200;
+        tempCanvas.height = 600;
+        const ctx = tempCanvas.getContext('2d');
+        
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+        const tempChart = new Chart(ctx, {
+            type: config.type,
+            data: config.data,
+            options: {
+                ...config.options,
+                devicePixelRatio: 3, // KUNCI UTAMA HD
+                responsive: false,
+                animation: false,
+                plugins: {
+                    ...config.options?.plugins,
+                    legend: { labels: { color: "#000" } }
+                }
+            }
+        });
+
+        // Tunggu sebentar agar Chart.js selesai menggambar di canvas baru
+        await new Promise(res => setTimeout(res, 500));
+        
+        const base64 = tempChart.toBase64Image('image/png', 1.0);
+        
+        // Hapus chart sementara agar memori tidak bocor
+        tempChart.destroy(); 
+        
+        return base64;
+    }
+
+    // 1. Dapatkan gambar HD sejati dari kedua chart
+    const base64Ekspor = await getHDChartBase64(chartEkspor);
+    const base64Impor = await getHDChartBase64(chartImpor);
+
+    // 2. Load ke dalam object Image
     const imgEkspor = new Image();
-    imgEkspor.src = chartEkspor.toBase64Image();
+    imgEkspor.src = base64Ekspor;
 
     const imgImpor = new Image();
-    imgImpor.src = chartImpor.toBase64Image();
+    imgImpor.src = base64Impor;
 
     await Promise.all([
         new Promise(res => imgEkspor.onload = res),
         new Promise(res => imgImpor.onload = res)
     ]);
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    // 3. Buat Canvas Gabungan (Raksasa)
+    const finalCanvas = document.createElement('canvas');
+    const ctxFinal = finalCanvas.getContext('2d');
 
-    const width = 900;
-    const height = 450;
+    // Karena ukuran chart dari getHDChartBase64 adalah 1200x600, 
+    // canvas penampung juga harus menyesuaikan ukurannya.
+    const width = 1200; 
+    const height = 600;
+    const headerHeight = 120; // Ruang untuk judul
 
-    canvas.width = width * 2;
-    canvas.height = height + 80;
+    finalCanvas.width = width * 2; // Kiri kanan (2400)
+    finalCanvas.height = height + headerHeight; // (720)
 
-    // background putih
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Background putih
+    ctxFinal.fillStyle = "#ffffff";
+    ctxFinal.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-    // judul
-    ctx.fillStyle = "#000";
-    ctx.font = "bold 18px Arial";
-    ctx.fillText("Kontribusi Komoditas Ekspor vs Impor", 20, 30);
+    // Judul (Font diperbesar agar proporsional dengan canvas raksasa)
+    ctxFinal.fillStyle = "#000";
+    ctxFinal.font = "bold 48px Arial"; 
+    ctxFinal.fillText("Kontribusi Komoditas Ekspor vs Impor", 40, 70);
 
-    // gambar
-    ctx.drawImage(imgEkspor, 0, 60, width, height);
-    ctx.drawImage(imgImpor, width, 60, width, height);
+    // Gambar Chart Ekspor (Kiri) & Impor (Kanan)
+    ctxFinal.drawImage(imgEkspor, 0, headerHeight, width, height);
+    ctxFinal.drawImage(imgImpor, width, headerHeight, width, height);
 
-    return canvas.toDataURL("image/png", 1.0);
+    return finalCanvas.toDataURL("image/png", 1.0);
 }
-
 
 // ===== PNG =====
 async function exportKomoditasPNG() {
@@ -1206,7 +1229,6 @@ async function exportKomoditasPNG() {
     link.download = "komoditas-ekspor-impor.png";
     link.click();
 }
-
 
 // ===== PDF =====
 async function exportKomoditasPDF() {
@@ -1219,17 +1241,19 @@ async function exportKomoditasPDF() {
     pdf.save("komoditas-ekspor-impor.pdf");
 }
 
-// ===== TABEL png =====
+// ===== TABEL PNG =====
 function exportTablePNG() {
     const table = document.getElementById('card-tabel');
 
     html2canvas(table, {
-        scale: 2, // biar HD
-        backgroundColor: "#ffffff"
+        scale: 3, // Disamakan dengan PDF agar sama-sama super HD
+        useCORS: true,
+        backgroundColor: "#ffffff" // Pastikan background tidak transparan
     }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'tabel-ekspor-impor.png';
-        link.href = canvas.toDataURL();
+        // Tambahkan kualitas 1.0 agar tidak ada kompresi tambahan
+        link.href = canvas.toDataURL("image/png", 1.0); 
         link.click();
     });
 }
@@ -1237,32 +1261,80 @@ function exportTablePNG() {
 // ===== TABEL PDF =====
 async function exportTablePDF() {
     const { jsPDF } = window.jspdf;
-
     const element = document.getElementById('card-tabel');
 
     const canvas = await html2canvas(element, {
-        scale: 3, // lebih HD
-        useCORS: true
+        scale: 3, 
+        useCORS: true,
+        backgroundColor: "#ffffff"
     });
 
-    const imgData = canvas.toDataURL("image/png");
-
+    const imgData = canvas.toDataURL("image/png", 1.0);
     const pdf = new jsPDF('landscape', 'mm', 'a4');
 
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const imgWidth = pageWidth - 20;
-    const imgHeight = canvas.height * imgWidth / canvas.width;
+    // Margin kiri-kanan 10mm -> total margin 20mm
+    const margin = 10;
+    let imgWidth = pageWidth - (margin * 2);
+    let imgHeight = (canvas.height * imgWidth) / canvas.width;
 
     pdf.setFontSize(14);
-    pdf.text("Data Ekspor-Impor Bulanan", 10, 10);
+    pdf.text("Data Ekspor-Impor Bulanan", margin, margin + 5);
 
-    pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
+    // KUNCI: Cek apakah tinggi gambar melebihi kertas (margin atas 20, bawah 10 = sisa 30)
+    const maxImgHeight = pageHeight - 30;
+
+    if (imgHeight > maxImgHeight) {
+        // Jika kepanjangan, kompres proporsinya agar tetap muat di 1 halaman
+        imgHeight = maxImgHeight;
+        imgWidth = (canvas.width * imgHeight) / canvas.height;
+        
+        // Posisikan di tengah secara horizontal agar rapi
+        const xOffset = (pageWidth - imgWidth) / 2;
+        pdf.addImage(imgData, 'PNG', xOffset, 20, imgWidth, imgHeight);
+    } else {
+        pdf.addImage(imgData, 'PNG', margin, 20, imgWidth, imgHeight);
+    }
 
     pdf.save("tabel-ekspor-impor.pdf");
 }
+// ===== EXPORT CSV =====
+function exportCSV() {
+    let csv = [];
+    let rows = document.querySelectorAll("#tabelData tr");
 
+    for (let row of rows) {
+        let cols = row.querySelectorAll("td, th");
+        let data = [];
+
+        cols.forEach(col => {
+            // 1. Ambil teks dan hilangkan spasi kosong di awal/akhir
+            let text = col.innerText.trim();
+            
+            // 2. Escape tanda kutip yang sudah ada di dalam teks (ubah " jadi "")
+            text = text.replace(/"/g, '""');
+            
+            // 3. Bungkus seluruh teks dengan tanda kutip ganda ("1,250,000")
+            data.push('"' + text + '"');
+        });
+        
+        csv.push(data.join(","));
+    }
+
+    // Tambahkan BOM (\ufeff) agar Excel membaca karakter khusus (UTF-8) dengan benar
+    let blob = new Blob(["\ufeff" + csv.join("\n")], { type: "text/csv;charset=utf-8;" });
+    let url = window.URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "tabel-ekspor-impor.csv";
+    a.click();
+    
+    // Cleanup URL untuk mencegah memory leak
+    window.URL.revokeObjectURL(url);
+}
 </script>
 </section>
 </body>
