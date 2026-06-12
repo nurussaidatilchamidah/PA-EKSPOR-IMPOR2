@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\DataEksporImpor;
+use Carbon\Carbon;
 
 class InsightService
 {
@@ -67,27 +68,7 @@ $persenLebih = ($ratio - 1) * 100;
         ? "Surplus perdagangan"
         : "Defisit perdagangan";
 
-
-    // ================= SMART NARASI (BI STYLE) =================
-    $narasi = "Analisis perdagangan menunjukkan kondisi {$status} dengan dominasi {$dominasi}. ";
-
-    $narasi .= "Nilai ekspor berkontribusi sebesar "
-        . round($kontribusiEkspor, 2)
-        . "% terhadap total perdagangan, sedangkan impor sebesar "
-        . round($kontribusiImpor, 2)
-        . "%. ";
-
-    $narasi .= "Total perdagangan tercatat sebesar $ "
-        . number_format($totalPerdagangan)
-        . " dengan selisih perdagangan sebesar $ "
-        . number_format(abs($selisih))
-        . ". ";
-
-    $narasi .= "Selama periode pengamatan, ekspor tumbuh "
-        . round($growthEkspor, 2)
-        . "% dan impor tumbuh "
-        . round($growthImpor, 2)
-        . "%. ";
+   
 // ================= INSIGHT POINTS (VERSI EDUKATIF) =================
 
 $points = [
@@ -118,7 +99,19 @@ return [
     'kontribusi_ekspor' => $kontribusiEkspor,
     'kontribusi_impor' => $kontribusiImpor,
 
-    'narasi' => $narasi
+    'periode_ekspor_tertinggi' =>
+        \Carbon\Carbon::parse($eksporTertinggi->tanggal)
+            ->translatedFormat('F Y'),
+
+    'nilai_ekspor_tertinggi' =>
+        $eksporTertinggi->nilai_ekspor,
+
+    'periode_impor_tertinggi' =>
+        \Carbon\Carbon::parse($imporTertinggi->tanggal)
+            ->translatedFormat('F Y'),
+
+    'nilai_impor_tertinggi' =>
+        $imporTertinggi->nilai_impor
 ];
 }
 }
