@@ -27,6 +27,15 @@ try:
     # forecast masa depan
     forecast_future = model.forecast(steps=3).tolist()
 
+    # batasi prediksi yang tidak masuk akal
+    last_value = float(series.iloc[-1])
+
+    forecast_future = [
+        float(v) if abs(v) < (last_value * 2)
+        else last_value
+        for v in forecast_future
+    ]
+
     # fitted values
     fitted = model.fittedvalues
 

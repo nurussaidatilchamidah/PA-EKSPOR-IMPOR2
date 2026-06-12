@@ -233,17 +233,6 @@
                     </div>
                 </div>
 
-                <!-- Remember & Forgot -->
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center group cursor-pointer">
-                        <input type="checkbox" name="remember" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                        <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-800 transition-colors">Ingat saya</span>
-                    </label>
-                    <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-all">
-                        Lupa password?
-                    </a>
-                </div>
-
                 <!-- Submit Button -->
                 <button
                     type="submit"
@@ -257,19 +246,9 @@
                 </button>
             </form>
 
-
- <!-- Register Link -->
-            <div class="mt-3 text-center text-sm text-gray-600">
-                Belum punya akun? 
-                <a href="{{ route('register') }}" class="text-blue-600 hover:text-blue-700 font-bold hover:underline">
-                    Register di sini
-                </a>
-            </div>
-        </div>
-
         <!-- Footer -->
         <div class="text-center mt-5">
-            <p class="text-white text-opacity-90 text-sm drop-shadow-lg">
+            <p class="text-blue-800 text-opacity-90 text-sm drop-shadow-lg">
                 <span class="font-bold">Powered by BPS</span> • 
                 <a href="/" class="font-semibold hover:underline transition-all">Kembali ke Homepage</a>
             </p>
