@@ -345,7 +345,7 @@
     {{-- NOTE --}}
     <div class="text-center mt-3">
         <small class="text-muted">
-            MAPE = tingkat error prediksi (semakin kecil semakin bagus)
+            Semakin kecil nilai MAPE, semakin akurat hasil prediksi ARIMA.
         </small>
     </div>
 
@@ -483,6 +483,48 @@
         Seluruh nilai ditampilkan dalam satuan USD (United States Dollar).      
      </p>
     </div>
+    
+    <!---CARD TOP KOMODITAS--->
+    <div class="row g-3 mb-4">
+
+    <div class="col-md-6">
+        <div class="p-3 rounded-3 bg-primary-subtle text-center">
+
+            <small class="text-primary fw-semibold">
+                🏆 TOP EKSPOR
+            </small>
+
+            <div class="fw-bold mt-1">
+                {{ Str::limit($komoditasEksporTerbesar->nama_barang, 40) }}
+            </div>
+
+            <small class="text-muted">
+                USD {{ number_format($komoditasEksporTerbesar->total,0,',','.') }}
+            </small>
+
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="p-3 rounded-3 bg-danger-subtle text-center">
+
+            <small class="text-danger fw-semibold">
+                🏆 TOP IMPOR
+            </small>
+
+            <div class="fw-bold mt-1">
+                {{ Str::limit($komoditasImporTerbesar->nama_barang, 40) }}
+            </div>
+
+            <small class="text-muted">
+                USD {{ number_format($komoditasImporTerbesar->total,0,',','.') }}
+            </small>
+
+        </div>
+    </div>
+
+</div>
+
 </div>
 </div>
 
@@ -595,72 +637,66 @@
     </div>
 
     <!-- PENJELASAN BAGIAN ANGKA -->
-    <div class="row g-2">
+    <div class="row g-3 mt-2">
 
-        <div class="col-md-6">
-            <div class="p-3 border rounded-3 h-100">
-                <small class="text-muted">📦 Total Perdagangan</small>
-                <div class="fw-bold text-dark">
-                    $ {{ number_format($insight['total_ekspor'] + $insight['total_impor']) }}
-                </div>
-                <small class="text-muted">
-                    Gabungan total ekspor + impor
-                </small>
+    <!-- Total Perdagangan -->
+    <div class="col-md-4">
+        <div class="p-3 border rounded-3 h-100 text-center">
+            <div class="small text-muted mb-1">
+                📦 Total Perdagangan
             </div>
-        </div>
 
-        <div class="col-md-6">
-            <div class="p-3 border rounded-3 h-100">
-                <small class="text-muted">⚖️ Selisih Perdagangan</small>
-                <div class="fw-bold text-dark">
-                    $ {{ number_format($insight['selisih']) }}
-                </div>
-                <small class="text-muted">
-                    Jika positif = surplus, jika negatif = defisit
-                </small>
+            <div class="fw-bold text-dark fs-5">
+                $ {{ number_format($insight['total_ekspor'] + $insight['total_impor']) }}
             </div>
-        </div>
 
-        <div class="col-md-6">
-            <div class="p-3 border rounded-3 h-100">
-                <small class="text-muted">📈 Pertumbuhan Ekspor</small>
-                <div class="fw-bold text-dark">
-                    $ {{ round($insight['growth'], 2) }}%
-                </div>
-                <small class="text-muted">
-                    Perubahan dari awal ke akhir periode
-                </small>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="p-3 border rounded-3 h-100">
-                <small class="text-muted">📊 Status Perdagangan</small>
-                <div class="fw-bold text-dark">
-                    {{ $insight['status'] }}
-                </div>
-                <small class="text-muted">
-                    Kondisi akhir neraca perdagangan
-                </small>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- POINTS (opsional tetap dipakai tapi lebih “simple”) -->
-    <div class="mt-3">
-        <div class="row g-2">
-
-            @foreach($insight['points'] as $point)
-            <div class="col-md-6">
-                <div class="p-2 bg-white border rounded-3 small text-dark">
-                    🔹 {{ $point }}
-                </div>
-            </div>
-            @endforeach
-
+            <small class="text-muted">
+                Ekspor + Impor
+            </small>
         </div>
     </div>
+
+    <!-- Struktur Perdagangan -->
+    <div class="col-md-4">
+        <div class="p-3 border rounded-3 h-100 text-center">
+            <div class="small text-muted mb-1">
+                📊 Struktur Perdagangan
+            </div>
+
+            <div class="fw-bold text-primary">
+                {{ round($insight['kontribusi_ekspor'],2) }}%
+            </div>
+
+            <small class="text-muted">
+                Kontribusi ekspor terhadap total perdagangan
+            </small>
+        </div>
+    </div>
+
+    <!-- Pertumbuhan -->
+    <div class="col-md-4">
+        <div class="p-3 border rounded-3 h-100 text-center">
+            <div class="small text-muted mb-1">
+                📈 Pertumbuhan
+            </div>
+
+            <div>
+                <span class="fw-bold text-primary">
+                    E {{ round($insight['growth_ekspor'],2) }}%
+                </span>
+                |
+                <span class="fw-bold text-danger">
+                    I {{ round($insight['growth_impor'],2) }}%
+                </span>
+            </div>
+
+            <small class="text-muted">
+                Perubahan dari awal hingga akhir periode
+            </small>
+        </div>
+    </div>
+
+</div>
 
 </div>
 

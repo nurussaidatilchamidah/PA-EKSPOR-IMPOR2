@@ -206,6 +206,8 @@ if (count($forecastImpor) > 0) {
         ->orderByDesc('total')
         ->limit(10)
         ->get();
+    $komoditasEksporTerbesar = $topEkspor->first();
+    $komoditasImporTerbesar = $topImpor->first();
 
         // ========== INSIGHT ==========
     $insightService = new InsightService();
@@ -246,6 +248,8 @@ if (count($forecastImpor) > 0) {
         'totalDefisit' => $totalDefisit,
         'topEkspor' => $topEkspor,
         'topImpor' => $topImpor,
+        'komoditasEksporTerbesar'=> $komoditasEksporTerbesar,
+        'komoditasImporTerbesar'=> $komoditasImporTerbesar,
         'insight' => $insight,
     ]);
     }

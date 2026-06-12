@@ -46,46 +46,48 @@ $persenLebih = ($ratio - 1) * 100;
 
     // ================= TREND (%) =================
     $ekspor = $data->pluck('nilai_ekspor')->values();
-    $first = $ekspor->first();
-    $last = $ekspor->last();
+    $impor = $data->pluck('nilai_impor')->values();
 
-    $growth = 0;
-    if ($first > 0) {
-        $growth = (($last - $first) / $first) * 100;
-    }
+    $firstEkspor = $ekspor->first();
+    $lastEkspor = $ekspor->last();
+
+    $firstImpor = $impor->first();
+    $lastImpor = $impor->last();
+
+    $growthEkspor = $firstEkspor != 0
+        ? (($lastEkspor - $firstEkspor) / $firstEkspor) * 100
+        : 0;
+
+    $growthImpor = $firstImpor != 0
+        ? (($lastImpor - $firstImpor) / $firstImpor) * 100
+        : 0;
 
     // ================= STATUS =================
     $status = $selisih > 0
         ? "Surplus perdagangan"
         : "Defisit perdagangan";
 
-    // ================= FIX KOMODITAS =================
-    $eksporTop = $eksporTertinggi->nama_barang
-        ?? $eksporTertinggi->komoditas
-        ?? 'Tidak tersedia';
-
-    $imporTop = $imporTertinggi->nama_barang
-        ?? $imporTertinggi->komoditas
-        ?? 'Tidak tersedia';
 
     // ================= SMART NARASI (BI STYLE) =================
     $narasi = "Analisis perdagangan menunjukkan kondisi {$status} dengan dominasi {$dominasi}. ";
 
-    $narasi .= "Ekspor menyumbang " . round($kontribusiEkspor, 2) . "% dari total perdagangan, ";
-    $narasi .= "sedangkan impor menyumbang " . round($kontribusiImpor, 2) . "%. ";
+    $narasi .= "Nilai ekspor berkontribusi sebesar "
+        . round($kontribusiEkspor, 2)
+        . "% terhadap total perdagangan, sedangkan impor sebesar "
+        . round($kontribusiImpor, 2)
+        . "%. ";
 
-    $narasi .= "Selisih perdagangan tercatat sebesar $ " . number_format(abs($selisih)) . ". ";
+    $narasi .= "Total perdagangan tercatat sebesar $ "
+        . number_format($totalPerdagangan)
+        . " dengan selisih perdagangan sebesar $ "
+        . number_format(abs($selisih))
+        . ". ";
 
-    if ($growth > 5) {
-        $narasi .= "Pertumbuhan ekspor tinggi sebesar " . round($growth, 2) . "% menunjukkan ekspansi kuat sektor perdagangan. ";
-    } elseif ($growth > 0) {
-        $narasi .= "Pertumbuhan ekspor sebesar " . round($growth, 2) . "% menunjukkan tren positif namun moderat. ";
-    } elseif ($growth < 0) {
-        $narasi .= "Ekspor mengalami penurunan sebesar " . abs(round($growth, 2)) . "% yang mengindikasikan perlambatan ekonomi. ";
-    } else {
-        $narasi .= "Ekspor relatif stagnan tanpa perubahan signifikan. ";
-    }
-
+    $narasi .= "Selama periode pengamatan, ekspor tumbuh "
+        . round($growthEkspor, 2)
+        . "% dan impor tumbuh "
+        . round($growthImpor, 2)
+        . "%. ";
 // ================= INSIGHT POINTS (VERSI EDUKATIF) =================
 
 $points = [
@@ -95,36 +97,28 @@ $points = [
 
     "Kontribusi impor terhadap total perdagangan: " . round($kontribusiImpor, 2) . "%",
 
-    "Selisih perdagangan (ekspor - impor): $ " . number_format($selisih),
-
-    "Komoditas ekspor dominan: " . $eksporTop,
-
-    "Komoditas impor dominan: " . $imporTop,
-
     "Status ekonomi saat ini: " . $status,
 
     "Dominasi perdagangan: " . $dominasi
 ];
 
-    return [
-        'ekspor_tertinggi' => $eksporTertinggi,
-        'impor_tertinggi' => $imporTertinggi,
+return [
+    'total_ekspor' => $totalEkspor,
+    'total_impor' => $totalImpor,
+    'selisih' => $selisih,
 
-        'total_ekspor' => $totalEkspor,
-        'total_impor' => $totalImpor,
-        'selisih' => $selisih,
+    'status' => $status,
 
-        'growth' => $growth,
-        'status' => $status,
+    'growth_ekspor' => $growthEkspor,
+    'growth_impor' => $growthImpor,
 
-        // 🔥 BI METRICS BARU
-        'ratio' => $ratio,
-        'dominasi' => $dominasi,
-        'kontribusi_ekspor' => $kontribusiEkspor,
-        'kontribusi_impor' => $kontribusiImpor,
+    'ratio' => $ratio,
+    'dominasi' => $dominasi,
 
-        'narasi' => $narasi,
-        'points' => $points
-    ];
+    'kontribusi_ekspor' => $kontribusiEkspor,
+    'kontribusi_impor' => $kontribusiImpor,
+
+    'narasi' => $narasi
+];
 }
 }
