@@ -194,18 +194,18 @@ if (count($forecastImpor) > 0) {
     }));
 
             // ================= KOMODITAS =================
-    $topEkspor = DataHs::select('nama_barang')
+    $allEkspor = DataHs::select('nama_barang')
         ->selectRaw('SUM(nilai_ekspor) as total')
         ->groupBy('nama_barang')
         ->orderByDesc('total')
-        ->limit(10)
         ->get();
-    $topImpor = DataHs::select('nama_barang')
+    $allImpor = DataHs::select('nama_barang')
         ->selectRaw('SUM(nilai_impor) as total')
         ->groupBy('nama_barang')
         ->orderByDesc('total')
-        ->limit(10)
         ->get();
+    $topEkspor = $allEkspor->take(10);
+    $topImpor = $allImpor->take(10);
     $komoditasEksporTerbesar = $topEkspor->first();
     $komoditasImporTerbesar = $topImpor->first();
 
@@ -250,6 +250,10 @@ if (count($forecastImpor) > 0) {
         'topImpor' => $topImpor,
         'komoditasEksporTerbesar'=> $komoditasEksporTerbesar,
         'komoditasImporTerbesar'=> $komoditasImporTerbesar,
+        'topEkspor' => $topEkspor,
+        'topImpor' => $topImpor,
+        'allEkspor' => $allEkspor,
+        'allImpor' => $allImpor,
         'insight' => $insight,
     ]);
     }

@@ -174,19 +174,49 @@
 
 .pie-chart-wrapper {
     position: relative;
-    width: 100%;
-    height: 400px;
+    width: min(100%, 520px);
+    max-width: 520px;
+    height: 520px;
+    margin: 0 auto;
 }
 
-@media (max-width: 991px) {
-    .pie-chart-wrapper {
-        height: 480px;
-    }
+.pie-chart-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+.pie-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 0.25rem 0;
+}
+
+.pie-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 160px;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    color: #2c3e50;
+}
+
+.pie-legend .legend-color-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
 }
 
 @media (max-width: 767px) {
     .pie-chart-wrapper {
-        height: 540px;
+        height: 480px;
     }
 }
 </style>
@@ -272,7 +302,9 @@
             <p class="text-muted mb-0 small">
                 Menampilkan data historis ekspor dan impor (garis solid), 
                 serta hasil prediksi menggunakan metode ARIMA 
-                (garis putus-putus) untuk memperkirakan tren pada periode berikutnya.
+                (garis putus-putus) untuk tiga periode berikutnya. 
+                Metode ARIMA (AutoRegressive Integrated Moving Average) digunakan untuk 
+                memprediksi nilai berdasarkan pola data masa lalu.     
             </p>
         </div>
 
@@ -298,7 +330,7 @@
 
         <div class="col-md-6">
             <div class="p-3 rounded-3 bg-primary-subtle">
-                <small class="text-muted">MAPE Ekspor</small>
+                <small class="text-muted">MAPE ARIMA Ekspor</small>
                 <h5 class="fw-bold mb-0">
                     {{ number_format($mapeEkspor, 2) }}%
                 </h5>
@@ -318,7 +350,7 @@
 
         <div class="col-md-6">
             <div class="p-3 rounded-3 bg-danger-subtle">
-                <small class="text-muted">MAPE Impor</small>
+                <small class="text-muted">MAPE ARIMA Impor</small>
                 <h5 class="fw-bold mb-0">
                     {{ number_format($mapeImpor, 2) }}%
                 </h5>
@@ -357,7 +389,7 @@
             ⚖️ Analisis Neraca Perdagangan
         </h4>
         <p class="text-muted small mb-0">
-            Perbandingan antara nilai ekspor dan impor untuk menentukan kondisi surplus atau defisit
+            Perbandingan antara nilai ekspor dan impor untuk menentukan kondisi surplus atau defisit.
         </p>
     </div>
 
@@ -421,7 +453,7 @@
         </p>
         <p class="small text-muted mb-0">
             Neraca perdagangan menunjukkan selisih antara ekspor dan impor. Surplus terjadi saat ekspor 
-            lebih besar dari impor, sedangkan Defisitterjadi saat impor lebih besar dari ekspor.
+            lebih besar dari impor, sedangkan Defisit terjadi saat impor lebih besar dari ekspor.
         </p>
     </div>
 </div>
@@ -436,7 +468,8 @@
                 📦 Kontribusi Komoditas Ekspor vs Impor
             </h5>
             <p class="text-muted small mb-0">
-                Diagram menunjukkan 10 komoditas utama yang paling berkontribusi terhadap nilai ekspor dan impor.
+            Menampilkan distribusi kontribusi komoditas ekspor dan impor 
+            yang dapat dianalisis dalam tampilan Top 10 maupun seluruh komoditas.            
             </p>
         </div>
 
@@ -458,17 +491,27 @@
         <!-- EKSPOR -->
         <div class="col-md-6 text-center">
             <h5 class="fw-bold text-primary">Ekspor</h5>
+            <div class="btn-group btn-group-sm mb-3" role="group">
+                <button id="eksporTop10Btn" type="button" class="btn btn-outline-primary active">Top 10</button>
+                <button id="eksporAllBtn" type="button" class="btn btn-outline-primary">Semua</button>
+            </div>
             <div class="pie-chart-wrapper mx-auto">
                 <canvas id="chartEksporKomoditas"></canvas>
             </div>
+            <div id="legendEkspor" class="pie-legend"></div>
         </div>
 
         <!-- IMPOR -->
         <div class="col-md-6 text-center">
             <h5 class="fw-bold text-danger">Impor</h5>
+            <div class="btn-group btn-group-sm mb-3" role="group">
+                <button id="imporTop10Btn" type="button" class="btn btn-outline-danger active">Top 10</button>
+                <button id="imporAllBtn" type="button" class="btn btn-outline-danger">Semua</button>
+            </div>
             <div class="pie-chart-wrapper mx-auto">
                 <canvas id="chartImporKomoditas"></canvas>
             </div>
+            <div id="legendImpor" class="pie-legend"></div>
         </div>
     </div>
         <!-- INTERPRETASI -->
@@ -476,10 +519,11 @@
         <p class="small text-dark mb-1">
             <strong>📌 Interpretasi:</strong>
         </p>
-        <p class="small text-muted mb-0">
-        Diagram menunjukkan kontribusi komoditas utama berdasarkan kode HS (Harmonized System) terhadap ekspor dan impor. 
-        Semakin besar proporsi suatu komoditas, semakin besar kontribusinya dalam aktivitas perdagangan. 
-        Seluruh nilai ditampilkan dalam satuan USD (United States Dollar).      
+        <p class="small text-muted mb-0">   
+        Diagram memperlihatkan kontribusi komoditas utama berdasarkan kode HS (Harmonized System). 
+        Komoditas dengan proporsi terbesar merupakan penyumbang utama nilai ekspor maupun impor. Perbandingan 
+        kedua diagram dapat digunakan untuk mengidentifikasi komoditas yang dominan pada ekspor, 
+        impor, maupun keduanya. Nilai perdagangan ditampilkan dalam satuan USD (United States Dollar).   
      </p>
     </div>
     
@@ -924,22 +968,24 @@ sehingga hasil prediksi dapat digunakan sebagai gambaran tren perdagangan pada p
 });
 
 // Grafik komoditas
-const komoditasEkspor = @json($topEkspor);
-const komoditasImpor = @json($topImpor);
-const colorMap = getColorMap(komoditasEkspor, komoditasImpor);
+const komoditasEksporTop = @json($topEkspor);
+const komoditasImporTop = @json($topImpor);
+const komoditasEksporAll = @json($allEkspor);
+const komoditasImporAll = @json($allImpor);
+const colorMap = getColorMap([...komoditasEksporAll, ...komoditasImporAll]);
 
-function getColorMap(dataEkspor, dataImpor) {
-    const allLabels = [...dataEkspor, ...dataImpor].map(d => d.nama_barang);
-    const uniqueLabels = [...new Set(allLabels)];
+function getColorMap(data) {
+    const labels = [...new Set(data.map(d => d.nama_barang))];
 
     const baseColors = [
         '#4A6FA5','#166088','#4fc3f7','#81c3d7','#2f6690',
-        '#6c757d','#20c997','#ffc107','#dc3545','#0d6efd'
+        '#6c757d','#20c997','#ffc107','#dc3545','#0d6efd',
+        '#0dcaf0','#fd7e14','#6610f2','#20c997','#6f42c1'
     ];
 
     let colorMap = {};
 
-    uniqueLabels.forEach((label, index) => {
+    labels.forEach((label, index) => {
         colorMap[label] = baseColors[index % baseColors.length];
     });
 
@@ -950,22 +996,11 @@ function getPieOptions() {
     const isMobile = window.innerWidth < 768;
     return {
         responsive: true,
-        maintainAspectRatio: false,
-        aspectRatio: isMobile ? 0.8 : 1.0,
+        maintainAspectRatio: true,
+        aspectRatio: 1,
         plugins: {
             legend: {
-                display: true,
-                position: 'bottom',
-                align: 'center',
-                maxWidth: isMobile ? 280 : 400,
-                labels: {
-                    usePointStyle: true,
-                    boxWidth: 10,
-                    padding: isMobile ? 5 : 7,
-                    font: {
-                        size: isMobile ? 9 : 11
-                    }
-                }
+                display: false
             },
             tooltip: {
                 callbacks: {
@@ -975,12 +1010,32 @@ function getPieOptions() {
                         return label + ': $ ' + value.toLocaleString('en-US');
                     }
                 }
+            },
+            datalabels: {
+                color: function(context) {
+                    const backgroundColor = context.dataset.backgroundColor[context.dataIndex];
+                    return contrastColor(backgroundColor);
+                },
+                formatter: function(value, context) {
+                    const data = context.chart.data.datasets[0].data;
+                    const total = data.reduce((sum, item) => sum + Number(item), 0);
+                    const current = Number(context.raw !== undefined ? context.raw : value);
+                    const percentage = total > 0 ? (current / total) * 100 : 0;
+                    return percentage.toFixed(1) + '%';
+                },
+                font: {
+                    size: isMobile ? 10 : 12,
+                    weight: '600'
+                },
+                anchor: 'center',
+                clamp: true,
+                clip: true
             }
         },
         layout: {
             padding: {
                 top: 10,
-                bottom: 50,
+                bottom: isMobile ? 70 : 60,
                 left: 10,
                 right: 10
             }
@@ -988,30 +1043,136 @@ function getPieOptions() {
     };
 }
 
-// PIE EKSPOR
-new Chart(document.getElementById('chartEksporKomoditas'), {
-    type: 'pie',
-    data: {
-        labels: komoditasEkspor.map(e => e.nama_barang),
-        datasets: [{
-            data: komoditasEkspor.map(e => e.total),
-            backgroundColor: komoditasEkspor.map(e => colorMap[e.nama_barang])
-        }]
-    },
-    options: getPieOptions()
-});
+let chartEksporKomoditas;
+let chartImporKomoditas;
+let currentEksporData = komoditasEksporTop;
+let currentImporData = komoditasImporTop;
 
-// PIE IMPOR
-new Chart(document.getElementById('chartImporKomoditas'), {
-    type: 'pie',
-    data: {
-        labels: komoditasImpor.map(i => i.nama_barang),
-        datasets: [{
-            data: komoditasImpor.map(i => i.total),
-            backgroundColor: komoditasImpor.map(i => colorMap[i.nama_barang])
-        }]
-    },
-    options: getPieOptions()
+function parseNumeric(value) {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+        const cleaned = value.replace(/[^0-9.-]+/g, '');
+        return cleaned ? Number(cleaned) : 0;
+    }
+    return 0;
+}
+
+function formatLegendItems(data) {
+    const total = data.reduce((sum, item) => sum + parseNumeric(item.total), 0);
+    return data.map(item => {
+        const value = parseNumeric(item.total);
+        const percentage = total > 0 ? ((value / total) * 100) : 0;
+        return {
+            label: item.nama_barang,
+            value: value,
+            percentage: percentage.toFixed(1),
+            color: colorMap[item.nama_barang]
+        };
+    });
+}
+
+function contrastColor(bgColor) {
+    const hex = bgColor.replace('#','');
+    const r = parseInt(hex.substring(0,2), 16);
+    const g = parseInt(hex.substring(2,4), 16);
+    const b = parseInt(hex.substring(4,6), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 140 ? '#111111' : '#ffffff';
+}
+
+function renderLegend(containerId, items) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = items.map(item => `
+        <div class="legend-item">
+            <div class="legend-color-box" style="background:${item.color}"></div>
+            <div>${item.label} <strong>${item.percentage}%</strong></div>
+        </div>
+    `).join('');
+}
+
+function createPieChart(canvasId, data) {
+    return new Chart(document.getElementById(canvasId), {
+        type: 'pie',
+        data: {
+            labels: data.map(item => item.nama_barang),
+            datasets: [{
+                data: data.map(item => parseNumeric(item.total)),
+                backgroundColor: data.map(item => colorMap[item.nama_barang]),
+                borderColor: 'transparent',
+                borderWidth: 0,
+                hoverBorderWidth: 0
+            }]
+        },
+        options: getPieOptions()
+    });
+}
+
+function updatePieChart(chart, data) {
+    chart.data.labels = data.map(item => item.nama_barang);
+    chart.data.datasets[0].data = data.map(item => parseNumeric(item.total));
+    chart.data.datasets[0].backgroundColor = data.map(item => colorMap[item.nama_barang]);
+    chart.update();
+}
+
+function initKomoditasCharts() {console.log('Ekspor payload', currentEksporData);
+console.log('Impor payload', currentImporData);    chartEksporKomoditas = createPieChart('chartEksporKomoditas', currentEksporData);
+    chartImporKomoditas = createPieChart('chartImporKomoditas', currentImporData);
+    renderLegend('legendEkspor', formatLegendItems(currentEksporData));
+    renderLegend('legendImpor', formatLegendItems(currentImporData));
+
+    function setActiveButton(group, activeBtnId) {
+        document.querySelectorAll(group).forEach(btn => btn.classList.remove('active'));
+        document.getElementById(activeBtnId).classList.add('active');
+    }
+
+    document.getElementById('eksporTop10Btn').addEventListener('click', function() {
+        setActiveButton('#eksporTop10Btn, #eksporAllBtn', 'eksporTop10Btn');
+        toggleEksporData(false);
+    });
+    document.getElementById('eksporAllBtn').addEventListener('click', function() {
+        setActiveButton('#eksporTop10Btn, #eksporAllBtn', 'eksporAllBtn');
+        toggleEksporData(true);
+    });
+    document.getElementById('imporTop10Btn').addEventListener('click', function() {
+        setActiveButton('#imporTop10Btn, #imporAllBtn', 'imporTop10Btn');
+        toggleImporData(false);
+    });
+    document.getElementById('imporAllBtn').addEventListener('click', function() {
+        setActiveButton('#imporTop10Btn, #imporAllBtn', 'imporAllBtn');
+        toggleImporData(true);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initKomoditasCharts);
+
+function toggleEksporData(showAll) {
+    currentEksporData = showAll ? komoditasEksporAll : komoditasEksporTop;
+    updatePieChart(chartEksporKomoditas, currentEksporData);
+    renderLegend('legendEkspor', formatLegendItems(currentEksporData));
+}
+
+function toggleImporData(showAll) {
+    currentImporData = showAll ? komoditasImporAll : komoditasImporTop;
+    updatePieChart(chartImporKomoditas, currentImporData);
+    renderLegend('legendImpor', formatLegendItems(currentImporData));
+}
+
+document.getElementById('eksporTop10Btn').addEventListener('click', function() {
+    setActiveButton('#eksporTop10Btn, #eksporAllBtn', 'eksporTop10Btn');
+    toggleEksporData(false);
+});
+document.getElementById('eksporAllBtn').addEventListener('click', function() {
+    setActiveButton('#eksporTop10Btn, #eksporAllBtn', 'eksporAllBtn');
+    toggleEksporData(true);
+});
+document.getElementById('imporTop10Btn').addEventListener('click', function() {
+    setActiveButton('#imporTop10Btn, #imporAllBtn', 'imporTop10Btn');
+    toggleImporData(false);
+});
+document.getElementById('imporAllBtn').addEventListener('click', function() {
+    setActiveButton('#imporTop10Btn, #imporAllBtn', 'imporAllBtn');
+    toggleImporData(true);
 });
 
 // DataTables
