@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Visualisasi Ekspor-Impor</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    
-    <style>
+<style>
         @keyframes gradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -34,15 +25,6 @@
                 opacity: 0.5;
                 transform: scale(1.05);
             }
-        }
-        
-        body {
-            background: linear-gradient(-45deg, #2f6690, #3a7ca5, #16425b, #81c3d7);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
         }
         
         .floating-shape {
@@ -190,10 +172,24 @@
     opacity: 0.95;
 }
 
-</style>
+.pie-chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 400px;
+}
 
-</head>
-<body>
+@media (max-width: 991px) {
+    .pie-chart-wrapper {
+        height: 480px;
+    }
+}
+
+@media (max-width: 767px) {
+    .pie-chart-wrapper {
+        height: 540px;
+    }
+}
+</style>
 
 <section id="dashboard" style="margin-top: 30px; padding-top: 30px; padding-bottom: 80px;">
 
@@ -462,13 +458,17 @@
         <!-- EKSPOR -->
         <div class="col-md-6 text-center">
             <h5 class="fw-bold text-primary">Ekspor</h5>
-            <canvas id="chartEksporKomoditas"></canvas>
+            <div class="pie-chart-wrapper mx-auto">
+                <canvas id="chartEksporKomoditas"></canvas>
+            </div>
         </div>
 
         <!-- IMPOR -->
         <div class="col-md-6 text-center">
             <h5 class="fw-bold text-danger">Impor</h5>
-            <canvas id="chartImporKomoditas"></canvas>
+            <div class="pie-chart-wrapper mx-auto">
+                <canvas id="chartImporKomoditas"></canvas>
+            </div>
         </div>
     </div>
         <!-- INTERPRETASI -->
@@ -946,6 +946,48 @@ function getColorMap(dataEkspor, dataImpor) {
     return colorMap;
 }
 
+function getPieOptions() {
+    const isMobile = window.innerWidth < 768;
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        aspectRatio: isMobile ? 0.8 : 1.0,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+                align: 'center',
+                maxWidth: isMobile ? 280 : 400,
+                labels: {
+                    usePointStyle: true,
+                    boxWidth: 10,
+                    padding: isMobile ? 5 : 7,
+                    font: {
+                        size: isMobile ? 9 : 11
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed;
+                        return label + ': $ ' + value.toLocaleString('en-US');
+                    }
+                }
+            }
+        },
+        layout: {
+            padding: {
+                top: 10,
+                bottom: 50,
+                left: 10,
+                right: 10
+            }
+        }
+    };
+}
+
 // PIE EKSPOR
 new Chart(document.getElementById('chartEksporKomoditas'), {
     type: 'pie',
@@ -953,9 +995,10 @@ new Chart(document.getElementById('chartEksporKomoditas'), {
         labels: komoditasEkspor.map(e => e.nama_barang),
         datasets: [{
             data: komoditasEkspor.map(e => e.total),
-backgroundColor: komoditasEkspor.map(e => colorMap[e.nama_barang])        
-    }]
-    }
+            backgroundColor: komoditasEkspor.map(e => colorMap[e.nama_barang])
+        }]
+    },
+    options: getPieOptions()
 });
 
 // PIE IMPOR
@@ -965,9 +1008,10 @@ new Chart(document.getElementById('chartImporKomoditas'), {
         labels: komoditasImpor.map(i => i.nama_barang),
         datasets: [{
             data: komoditasImpor.map(i => i.total),
-backgroundColor: komoditasImpor.map(i => colorMap[i.nama_barang])
+            backgroundColor: komoditasImpor.map(i => colorMap[i.nama_barang])
         }]
-    }
+    },
+    options: getPieOptions()
 });
 
 // DataTables
@@ -1337,5 +1381,3 @@ function exportCSV() {
 }
 </script>
 </section>
-</body>
-</html>

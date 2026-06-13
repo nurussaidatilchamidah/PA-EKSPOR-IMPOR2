@@ -6,43 +6,107 @@
     <link rel="icon" type="image/png" href="{{ asset('images/icondata.png') }}">
     @vite(['resources/css/app.css'])
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Desktop - sidebar fixed di kiri */
+        .admin-layout {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+        
+        aside {
+            width: 16rem;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .admin-main {
+            display: flex;
+            flex-direction: column;
+            margin-left: 16rem;
+            flex: 1;
+            height: 100vh;
+            width: calc(100% - 16rem);
+        }
+        
+        .admin-header {
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+        
+        main {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Mobile & Tablet - sidebar hidden, fullwidth content scrollable */
         @media (max-width: 1024px) {
-            body {
-                overflow-x: hidden;
-                overflow-y: auto;
-            }
             .admin-layout {
+                display: flex;
                 flex-direction: column;
+                height: auto;
+                min-height: 100vh;
             }
+            
             aside {
+                display: none;
                 position: relative;
                 width: 100%;
                 height: auto;
-                min-height: auto;
-                max-height: calc(100vh - 56px);
-                overflow-y: auto;
+                margin-left: 0;
+                z-index: 0;
             }
+            
             .admin-main {
-                margin-left: 0 !important;
-                min-height: auto;
+                display: flex;
+                flex-direction: column;
+                margin-left: 0;
+                width: 100%;
+                height: auto;
+                min-height: 100vh;
             }
+            
             .admin-header {
+                flex-shrink: 0;
                 position: sticky;
                 top: 0;
-                z-index: 30;
+                z-index: 40;
+            }
+            
+            main {
+                flex: 1;
+                overflow-y: auto;
+                min-height: auto;
             }
         }
+        
         @media (max-width: 768px) {
-            aside nav {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.5rem;
-            }
-            aside .p-6 {
-                padding: 1rem;
-            }
             .admin-header h1 {
-                font-size: 1.4rem;
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .admin-header h1 {
+                font-size: 1rem;
             }
         }
     </style>
@@ -54,12 +118,12 @@
     }
 </script>
 
-<body class="bg-gray-100 h-screen overflow-hidden">
+<body class="bg-gray-100">
 
-<div class="flex h-full admin-layout">
+<div class="admin-layout">
 
     <!-- SIDEBAR -->
-    <aside class="w-64 bg-blue-900 text-white h-screen fixed left-0 top-0 flex flex-col shadow-xl">
+    <aside class="bg-blue-900 text-white flex flex-col shadow-xl">
 
         <div class="p-6 border-b border-blue-700">
             <h2 class="text-2xl font-bold">Admin Panel</h2>
@@ -126,27 +190,17 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <div class="flex-1 flex flex-col ml-64 h-screen admin-main">
+    <div class="admin-main">
 
         <!-- HEADER -->
-        <header class="bg-white shadow px-6 py-4 flex items-center justify-between admin-header">
-                    <h1 class="text-2xl font-bold text-gray-800">
+        <header class="bg-white shadow px-4 md:px-6 py-3 md:py-4 flex items-center justify-between admin-header">
+                    <h1 class="text-lg md:text-2xl font-bold text-gray-800">
                         @yield('title', 'Dashboard Admin')
                     </h1>
-
-                    <!-- Mobile logout (visible only on small screens) -->
-                    <div class="block lg:hidden ml-4">
-                        <form method="POST" action="{{ route('logout') }}" onsubmit="return confirmLogout()">
-                            @csrf
-                            <button type="submit" class="px-4 py-2 rounded-md bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500">
-                                Logout
-                            </button>
-                        </form>
-                    </div>
                 </header>
 
         <!-- CONTENT -->
-        <main class="p-6 overflow-y-auto flex-1">
+        <main class="p-4 md:p-6">
             @yield('content')
         </main>
 

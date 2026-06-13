@@ -7,11 +7,11 @@
 @section('content')
 
 <!-- ===================== CARD RINGKASAN ===================== -->
-<div class="grid grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
 
-<div class="bg-green-600 text-white p-6 rounded-xl shadow-lg">
-    <h2 class="text-sm uppercase tracking-wide">Total Ekspor</h2>
-    <p class="text-2xl font-bold mt-2">
+<div class="bg-green-600 text-white p-4 md:p-6 rounded-xl shadow-lg">
+    <h2 class="text-xs md:text-sm uppercase tracking-wide">Total Ekspor</h2>
+    <p class="text-lg md:text-2xl font-bold mt-2">
         $ {{ number_format($totalEkspor,0,',','.') }}
     </p>
     <p class="text-xs mt-2 text-green-100">
@@ -19,9 +19,9 @@
     </p>
 </div>
 
-<div class="bg-red-600 text-white p-6 rounded-xl shadow-lg">
-    <h2 class="text-sm uppercase tracking-wide">Total Impor</h2>
-    <p class="text-2xl font-bold mt-2">
+<div class="bg-red-600 text-white p-4 md:p-6 rounded-xl shadow-lg">
+    <h2 class="text-xs md:text-sm uppercase tracking-wide">Total Impor</h2>
+    <p class="text-lg md:text-2xl font-bold mt-2">
         $ {{ number_format($totalImpor,0,',','.') }}
     </p>
     <p class="text-xs mt-2 text-red-100">
@@ -29,12 +29,12 @@
     </p>
 </div>
 
-<div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg">
-    <h2 class="text-sm uppercase tracking-wide">
+<div class="bg-blue-600 text-white p-4 md:p-6 rounded-xl shadow-lg">
+    <h2 class="text-xs md:text-sm uppercase tracking-wide">
     {{ $selisih >= 0 ? 'Surplus' : 'Defisit' }}
 </h2>
 
-<p class="text-2xl font-bold mt-2">
+<p class="text-lg md:text-2xl font-bold mt-2">
     $ {{ number_format(abs($selisih),0,',','.') }}
 </p>
 
@@ -43,9 +43,9 @@
 </p>
 </div>
 
-<div class="bg-gray-800 text-white p-6 rounded-xl shadow-lg">
-    <h2 class="text-sm uppercase tracking-wide">Total Record</h2>
-    <p class="text-lg font-semibold mt-2">
+<div class="bg-gray-800 text-white p-4 md:p-6 rounded-xl shadow-lg">
+    <h2 class="text-xs md:text-sm uppercase tracking-wide">Total Record</h2>
+    <p class="text-sm md:text-lg font-semibold mt-2">
         Bulanan: {{ $totalDataBulanan }} <br>
         HS: {{ $totalDataHS }}
     </p>
@@ -58,14 +58,14 @@
 
 
 <!-- ===================== CHART AREA ===================== -->
-<div class="space-y-8">
+<div class="space-y-4 md:space-y-6 lg:space-y-8">
 
     <!-- LINE CHART -->
-        <div class="bg-white p-6 rounded-xl shadow-lg">
-        <h2 class="text-lg font-bold mb-4">
+    <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+        <h2 class="text-base md:text-lg font-bold mb-2 md:mb-4">
             Grafik Ekspor & Impor 
         </h2>
-        <p class="text-sm text-gray-500 mb-2">
+        <p class="text-xs md:text-sm text-gray-500 mb-2">
         Menampilkan nilai ekspor dan impor per bulan berdasarkan data bulanan terbaru yang diinputkan
         </p>
 
@@ -73,12 +73,13 @@
     </div>
 
     <!-- TREEMAP -->
-    <div class="bg-white p-6 rounded-xl shadow-lg">
-        <h2 class="text-lg font-bold mb-4">
+    <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+        <h2 class="text-base md:text-lg font-bold mb-2 md:mb-4">
             Treemap Komoditas Ekspor (Top 10)
         </h2>
-        <p class="text-sm text-gray-500 mb-2">
+        <p class="text-xs md:text-sm text-gray-500 mb-2">
         Menampilkan 10 komoditas dengan nilai ekspor tertinggi berdasarkan Kode HS 2 Digit
+        </p>
 
         <div id="chartHs"></div>
     </div>
@@ -91,10 +92,11 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     // ================= LINE CHART =================
+    var chartBulananHeight = window.innerWidth < 768 ? 280 : window.innerWidth < 1024 ? 350 : 400;
     var optionsBulanan = {
         chart: {
             type: 'line',
-            height: 400
+            height: chartBulananHeight
         },
         series: [
             {
@@ -133,10 +135,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ================= TREEMAP =================
+    var chartHsHeight = window.innerWidth < 768 ? 400 : window.innerWidth < 1024 ? 500 : 600;
     var optionsHs = {
         chart: {
             type: 'treemap',
-            height: 600
+            height: chartHsHeight
         },
 
         legend: { show: false },
