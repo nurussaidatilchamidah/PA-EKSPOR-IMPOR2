@@ -5,6 +5,47 @@
     <title>Admin Panel - Ekspor Impor</title>
     <link rel="icon" type="image/png" href="{{ asset('images/icondata.png') }}">
     @vite(['resources/css/app.css'])
+    <style>
+        @media (max-width: 1024px) {
+            body {
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+            .admin-layout {
+                flex-direction: column;
+            }
+            aside {
+                position: relative;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                max-height: calc(100vh - 56px);
+                overflow-y: auto;
+            }
+            .admin-main {
+                margin-left: 0 !important;
+                min-height: auto;
+            }
+            .admin-header {
+                position: sticky;
+                top: 0;
+                z-index: 30;
+            }
+        }
+        @media (max-width: 768px) {
+            aside nav {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
+            }
+            aside .p-6 {
+                padding: 1rem;
+            }
+            .admin-header h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
 </head>
 
 <script>
@@ -15,7 +56,7 @@
 
 <body class="bg-gray-100 h-screen overflow-hidden">
 
-<div class="flex h-full">
+<div class="flex h-full admin-layout">
 
     <!-- SIDEBAR -->
     <aside class="w-64 bg-blue-900 text-white h-screen fixed left-0 top-0 flex flex-col shadow-xl">
@@ -85,14 +126,24 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <div class="flex-1 flex flex-col ml-64 h-screen">
+    <div class="flex-1 flex flex-col ml-64 h-screen admin-main">
 
         <!-- HEADER -->
-        <header class="bg-white shadow px-6 py-4">
-            <h1 class="text-2xl font-bold text-gray-800">
-                @yield('title', 'Dashboard Admin')
-            </h1>
-        </header>
+        <header class="bg-white shadow px-6 py-4 flex items-center justify-between admin-header">
+                    <h1 class="text-2xl font-bold text-gray-800">
+                        @yield('title', 'Dashboard Admin')
+                    </h1>
+
+                    <!-- Mobile logout (visible only on small screens) -->
+                    <div class="block lg:hidden ml-4">
+                        <form method="POST" action="{{ route('logout') }}" onsubmit="return confirmLogout()">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 rounded-md bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </header>
 
         <!-- CONTENT -->
         <main class="p-6 overflow-y-auto flex-1">

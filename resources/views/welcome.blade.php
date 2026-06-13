@@ -7,6 +7,8 @@
     <link rel="icon" type="image/png" href="{{ asset('images/home.png') }}">
 
     @vite(['resources/css/app.css'])
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     
     <style>
 html {
@@ -107,6 +109,102 @@ a:hover {
     text-decoration: none !important;
 }
 
+.hero-section {
+    min-height: calc(100vh - 90px);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    align-items: center;
+}
+
+.hero-heading {
+    font-size: clamp(4.5rem, 5vw, 8rem);
+    line-height: 1.05;
+    max-width: 42rem;
+    margin-bottom: 1rem;
+}
+
+.hero-copy {
+    font-size: clamp(1rem, 1.3vw, 1.3rem);
+    max-width: 36rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero-btn {
+    padding: 0.85rem 2.2rem;
+    font-size: 1.2rem;
+}
+
+@media (max-width: 1024px) {
+    .floating-shape {
+        display: none;
+    }
+    .hero-section {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    .hero-heading {
+        font-size: clamp(3rem, 6vw, 6rem);
+        max-width: 100%;
+    }
+    .hero-copy {
+        font-size: 1rem;
+        max-width: 100%;
+    }
+    .hero-btn {
+        width: auto;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        align-items: center;
+        justify-items: center;
+        text-align: center;
+        height: 100vh;
+        gap: 1rem;
+    }
+    .hero-heading {
+        font-size: 2.2rem;
+        margin-bottom: 0.6rem;
+    }
+    .hero-copy {
+        font-size: 0.9rem;
+        margin-bottom: 0.8rem;
+    }
+    .hero-btn {
+        width: 100%;
+        padding: 0.7rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    .hero-section img {
+        max-width: 80% !important;
+        height: auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero-section {
+        height: 100vh;
+        padding-top: 0.25rem;
+    }
+    .hero-heading {
+        font-size: 1.95rem;
+        margin-bottom: 0.5rem;
+    }
+    .hero-copy {
+        font-size: 0.85rem;
+        margin-bottom: 0.7rem;
+    }
+    .hero-btn {
+        padding: 0.6rem 1.4rem;
+        font-size: 0.85rem;
+    }
+    nav {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
 a:focus, a:active {
     outline: none;
     box-shadow: none;
@@ -142,42 +240,39 @@ function scrollToDashboard(e) {
     <div class="relative z-10">
     
     <!-- NAVBAR -->
-    <nav class="flex justify-between items-center px-5 sm:px-8 md:px-12 py-4 md:py-6 max-w-7xl mx-auto">
-    <div class="flex items-center gap-3">
+    <div class="container mx-auto px-5 sm:px-8 md:px-12 pt-3 md:pt-4">
+        <nav class="flex justify-end items-center">
+            <a href="{{ route('login') }}" 
+               class="text-white border border-white px-4 py-1.5 rounded-full hover:bg-white hover:!text-blue-700 transition duration-300 font-semibold text-sm md:text-base">
+                Login Admin
+            </a>
+        </nav>
     </div>
 
-            <a href="{{ route('login') }}" 
-            class="text-white border border-white px-5 py-2 rounded-full hover:bg-white hover:!text-blue-700 transition duration-300 font-semibold">
-            Login Admin
-            </a>
-
-    </nav>
-
         <!-- HERO SECTION -->
-        <section class="px-10 md:px-20 mt-10 flex flex-col md:flex-row items-center justify-between">
+        <section class="hero-section container mx-auto px-5 sm:px-8 md:px-12 grid gap-6 lg:gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center justify-center" style="max-width: 1250px;">
 
             <!-- TEXT -->
-            <div class="max-w-2xl">
-                <h1 class="text-6xl md:text-7xl font-serif leading-tight mb-6 animate-zoom">
+            <div>
+                <h1 class="hero-heading text-4xl md:text-5xl lg:text-6xl font-serif leading-tight mb-6 animate-zoom">
                     Analisis, Visualisasi, & Prediksi Tren Ekspor-Impor Nasional
                 </h1>
 
-                <p class="text-xl italic opacity-90 mb-10 drop-shadow-lg">
-                    Berbasis data resmi dari Badan Pusat Statistik (BPS) Indonesia <br>
-                    menggunakan metode ARIMA
+                <p class="hero-copy italic opacity-90 mb-8 drop-shadow-lg">
+                    Berbasis data resmi dari Badan Pusat Statistik (BPS) Indonesia menggunakan metode ARIMA
                 </p>
 
-            <a href="#dashboard" onclick="scrollToDashboard(event)"
-            class="no-underline inline-flex items-center gap-4 bg-white text-blue-700 px-6 py-3 rounded-full text-lg font-semibold shadow-xl hover:scale-110 transition">
-                Lihat Dashboard ↓
-            </a>
+                <a href="#dashboard" onclick="scrollToDashboard(event)"
+                   class="hero-btn no-underline inline-flex items-center gap-4 bg-white text-blue-700 px-6 py-3 rounded-full text-lg font-semibold shadow-xl hover:scale-110 transition">
+                    Lihat Dashboard ↓
+                </a>
             </div>
 
             <!-- ILUSTRASI -->
-            <div class="mt-12 md:mt-0">
+            <div class="w-full max-w-lg mx-auto">
                 <img src="{{ asset('images/data.svg') }}" 
                      alt="Ilustrasi" 
-                     class="w-[400px] md:w-[500px] drop-shadow-2xl">
+                     class="w-full max-w-full drop-shadow-2xl mx-auto md:mx-0">
             </div>
 
         </section>
