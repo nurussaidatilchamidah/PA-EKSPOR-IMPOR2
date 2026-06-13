@@ -214,6 +214,69 @@
     flex-shrink: 0;
 }
 
+.insight-card {
+    border:1px solid #e5e7eb;
+    min-height:160px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
+
+.insight-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 35px rgba(55, 63, 84, 0.08);
+}
+
+.insight-status-card {
+    border: 1px solid #d7e6fb;
+    background: linear-gradient(180deg, #f4f9ff 0%, #ffffff 100%);
+    min-width: 220px;
+}
+
+.insight-status-badge {
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insight-badge-surplus {
+    background: #198754;
+    color: #ffffff;
+}
+
+.insight-badge-defisit {
+    background: #dc3545;
+    color: #ffffff;
+}
+
+.insight-progress {
+    height: 10px;
+    background: #e9ecef;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.insight-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+@media (max-width: 767px) {
+    .insight-status-card {
+        width: 100%;
+        text-align: left;
+    }
+    .insight-card {
+        padding: 1rem;
+    }
+}
+
 @media (max-width: 767px) {
     .pie-chart-wrapper {
         height: 480px;
@@ -664,136 +727,129 @@
 <!-- INSIGHT ANALISIS -->
 <div id="card-insight" class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white">
 
-    <h5 class="fw-bold text-dark mb-2">
-        📊 Insight Analisis Otomatis
-    </h5>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+        <div class="flex-grow-1">
+            <h5 class="fw-bold text-dark mb-1">
+                📑 Ringkasan Hasil Analisis dan Prediksi
+            </h5>
+            <p class="text-muted small mb-0">
+                Ringkasan cepat kondisi perdagangan Indonesia berdasarkan data ekspor dan impor.
+            </p>
+        </div>
+    </div>
 
-    <p class="text-muted small mb-3">
-        Ringkasan ini menjelaskan kondisi perdagangan Indonesia berdasarkan data ekspor dan impor.
-    </p>
-
-   <div class="row g-3">
-
-    <!-- Total Perdagangan -->
-    <div class="col-md-4">
-        <div class="p-3 border rounded-3 h-100 text-center">
-            <div class="small text-muted mb-1">📦 Total Perdagangan</div>
-
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="insight-card p-3 rounded-4 h-100 text-center">
+            <div class="small text-muted mb-2">📦 Total Perdagangan</div>
             <div class="fw-bold fs-5 text-dark">
                 $ {{ number_format($insight['total_ekspor'] + $insight['total_impor']) }}
             </div>
-
             <small class="text-muted">
-                Ekspor + Impor
+                Total ekspor + impor
             </small>
+            </div>
         </div>
-    </div>
 
-    <!-- Struktur -->
-    <div class="col-md-4">
-        <div class="p-3 border rounded-3 h-100 text-center">
-            <div class="small text-muted mb-1">📊 Struktur Perdagangan</div>
-
-            <div class="fw-bold">
+        <div class="col-md-4">
+        <div class="insight-card p-3 rounded-4 h-100 text-center">
+            <div class="small text-muted mb-2">
+                📊 Struktur Perdagangan
+            </div>
+            <div class="fw-bold fs-5 mb-2">
                 <span class="text-primary">
-                    Ekspor {{ round($insight['kontribusi_ekspor'],2) }}%
+                Ekspor {{ round($insight['kontribusi_ekspor'],2) }}%
                 </span>
-                |
+                <span class="text-muted">|</span>
                 <span class="text-danger">
-                    Impor {{ round($insight['kontribusi_impor'],2) }}%
+                Impor {{ round($insight['kontribusi_impor'],2) }}%
                 </span>
             </div>
+         <div class="w-100 px-3">
+        <div style="display:flex; width:100%; height:12px; border-radius:20px; overflow:hidden; background:#e9ecef;">
+            <div style="width:{{ round($insight['kontribusi_ekspor'],2) }}%; background:#0d6efd; "></div>
+            <div style="width:{{ round($insight['kontribusi_impor'],2) }}%; background:#dc3545; "></div>
+        </div>
+        </div>
             <small class="text-muted">
-                Proporsi kontribusi terhadap total perdagangan     
+                Persentase kontribusi terhadap total perdagangan
             </small>
         </div>
     </div>
 
-    <!-- Pertumbuhan -->
-    <div class="col-md-4">
-        <div class="p-3 border rounded-3 h-100 text-center">
-            <div class="small text-muted mb-1">📈 Pertumbuhan</div>
-
-            <div class="fw-bold fs-6">
+        <div class="col-md-4">
+            <div class="insight-card p-3 rounded-4 h-100 text-center">
+            <div class="small text-muted mb-2">📈 Pertumbuhan</div>
+            <div class="fw-bold fs-5">
                 <span class="text-primary">
-                    Ekspor {{ round($insight['growth_ekspor'],2) }}%
+                Ekspor {{ round($insight['growth_ekspor'],2) }}%
                 </span>
-                |
+                <span class="text-muted">|</span>
                 <span class="text-danger">
-                    Impor {{ round($insight['growth_impor'],2) }}%
+                Impor {{ round($insight['growth_impor'],2) }}%
                 </span>
             </div>
-
-            <small class="text-muted">
-            Pertumbuhan dari awal hingga akhir periode
-            </small>
+                <small class="text-muted">Pertumbuhan sejak periode awal</small>
+            </div>
         </div>
-    </div>
 
-    <!-- Puncak Ekspor -->
-    <div class="col-md-4">
-        <div class="p-3 border rounded-3 h-100 text-center">
-            <div class="small text-muted mb-1">📤 Puncak Ekspor</div>
-
-            <div class="fw-bold text-primary">
+        <div class="col-md-4">
+            <div class="insight-card p-3 rounded-4 h-100 text-center">
+            <div class="small text-muted mb-2">📤 Puncak Ekspor</div>
+            <div class="fw-bold fs-5 text-primary">
                 {{ $insight['periode_ekspor_tertinggi'] }}
             </div>
-
             <small class="text-muted">
                 $ {{ number_format($insight['nilai_ekspor_tertinggi']) }}
             </small>
-        </div>
-    </div>
-
-    <!-- Puncak Impor -->
-    <div class="col-md-4">
-        <div class="p-3 border rounded-3 h-100 text-center">
-            <div class="small text-muted mb-1">📥 Puncak Impor</div>
-
-        <div class="fw-bold text-danger">
-            {{ $insight['periode_impor_tertinggi'] }}
+            </div>
         </div>
 
-        <small class="text-muted">
-            $ {{ number_format($insight['nilai_impor_tertinggi']) }}
-        </small>
+        <div class="col-md-4">
+            <div class="insight-card p-3 rounded-4 h-100 text-center">
+            <div class="small text-muted mb-2">📥 Puncak Impor</div>
+            <div class="fw-bold fs-5 text-danger">
+                {{ $insight['periode_impor_tertinggi'] }}
+            </div>
+            <small class="text-muted">
+                $ {{ number_format($insight['nilai_impor_tertinggi']) }}
+            </small>
+            </div>
         </div>
-    </div>
 
-    <!-- Akurasi -->
-    <div class="col-md-4">
-        <div class="p-3 border rounded-3 h-100 text-center">
-            <div class="small text-muted mb-1">🎯 Akurasi Prediksi</div>
-
-            <div class="fw-bold">
+        <div class="col-md-4">
+            <div class="insight-card p-3 rounded-4 h-100 text-center">
+            <div class="small text-muted mb-2">🎯 Akurasi Prediksi</div>
+            <div class="fw-bold fs-5">
                 <span class="text-primary">
-                    Ekspor {{ number_format($mapeEkspor,2) }}%
+                    {{ number_format($mapeEkspor,2) }}%
                 </span>
-                |
+                <span class="text-muted">|</span>
                 <span class="text-danger">
-                    Impor {{ number_format($mapeImpor,2) }}%
+                    {{ number_format($mapeImpor,2) }}%
                 </span>
             </div>
-        <small class="text-muted">
-            Sangat Baik | Baik
-        </small>
+            <small class="text-muted">
+                MAPE Ekspor vs Impor
+            </small>
+            </div>
         </div>
     </div>
-</div>
-    <div class="p-3 bg-light rounded-3 mb-3 mt-4">
-    <p class="text-dark mb-0" style="font-size: 14px; line-height:1.8;">
-💡 Berdasarkan hasil analisis, perdagangan Indonesia berada dalam kondisi
-{{ $insight['status'] }} dengan dominasi ekspor sebesar
-{{ round($insight['kontribusi_ekspor'],2) }}% dari total perdagangan.
 
-Ekspor tumbuh {{ round($insight['growth_ekspor'],2) }}%
-dan impor tumbuh {{ round($insight['growth_impor'],2) }}% selama periode pengamatan.
-Puncak ekspor terjadi pada {{ $insight['periode_ekspor_tertinggi'] }},
-sedangkan puncak impor terjadi pada {{ $insight['periode_impor_tertinggi'] }}.
-
-Model prediksi ARIMA memiliki akurasi yang baik
-(MAPE ekspor {{ number_format($mapeEkspor,2) }}% dan MAPE impor {{ number_format($mapeImpor,2) }}%),
-sehingga hasil prediksi dapat digunakan sebagai gambaran tren perdagangan pada periode berikutnya.
+    <div class="p-3 bg-light rounded-4 mt-4">
+        <p class="text-dark mb-0" style="font-size: 14px; line-height:1.8;">
+            💡 Berdasarkan hasil analisis, perdagangan Indonesia berada dalam kondisi
+            <strong>{{ $insight['status'] }}</strong> dengan dominasi ekspor sebesar
+            <strong>{{ round($insight['kontribusi_ekspor'],2) }}%</strong> dari total perdagangan.
+            Ekspor tumbuh <strong>{{ round($insight['growth_ekspor'],2) }}%</strong>
+            dan impor tumbuh <strong>{{ round($insight['growth_impor'],2) }}%</strong>
+            selama periode pengamatan.
+            Puncak ekspor terjadi pada <strong>{{ $insight['periode_ekspor_tertinggi'] }}</strong>,
+            sedangkan puncak impor terjadi pada <strong>{{ $insight['periode_impor_tertinggi'] }}</strong>.
+            Model prediksi ARIMA memiliki akurasi yang baik
+            (<strong>MAPE ekspor {{ number_format($mapeEkspor,2) }}%</strong> dan <strong>MAPE impor {{ number_format($mapeImpor,2) }}%</strong>),
+            sehingga hasil prediksi dapat digunakan sebagai gambaran tren perdagangan.
+        </p>
     </div>
 </div>
 </div>
